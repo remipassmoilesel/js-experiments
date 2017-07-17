@@ -4,8 +4,11 @@
   "description": "Work in progress...",
   "main": "first.spec.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha mocha.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.1.0"
+  }
 }
