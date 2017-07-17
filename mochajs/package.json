@@ -1,0 +1,11 @@
+{
+  "name": "mochajs",
+  "version": "1.0.0",
+  "description": "Work in progress...",
+  "main": "first.spec.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC"
+}
