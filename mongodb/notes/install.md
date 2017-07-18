@@ -33,3 +33,8 @@ Créer un fichier de configuration:
 Démarrer mongodb:
 
     $ /opt/mongodb/bin/mongod -f /opt/mongodb/config.yml 
+
+Installer le driver Node:
+
+    $ > npm install --save mongodb
+

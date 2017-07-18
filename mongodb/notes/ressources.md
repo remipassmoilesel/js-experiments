@@ -1,8 +1,14 @@
 # Ressources:
 
-Réplication:
-https://www.tutorialspoint.com/mongodb/mongodb_replication.htm
+Doc officielle du driver NodeJS:
 
-Sharding:
-https://www.tutorialspoint.com/mongodb/mongodb_sharding.htm
+    https://mongodb.github.io/node-mongodb-native/2.2/
+
+Tutoriels simples:
+
+    Réplication:
+    https://www.tutorialspoint.com/mongodb/mongodb_replication.htm
+    
+    Sharding:
+    https://www.tutorialspoint.com/mongodb/mongodb_sharding.htm
 
