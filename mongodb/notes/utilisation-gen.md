@@ -74,20 +74,7 @@ Insérer un document (créer une collection si non existante):
             ... document 2 ...
        }])
 
+## Importer
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    $ mongoimport --db test --collection restaurants --drop --file ~/downloads/primer-dataset.json
 
