@@ -1,5 +1,6 @@
 var express = require('express');
 var router = require('./router');
+var cookieParser = require('cookie-parser');
 
 var app = express();
 
@@ -47,21 +48,40 @@ app.get('/error', function (req, res, next) {
 });
 
 
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     console.error(err.stack);
     res.status(500).send('Something broke!');
     next();
 });
 
-app.use(function (req, res, next) {
+app.use('/error', function (req, res, next) {
     console.log("Executed after error ...");
     next();
 });
 
+//
+//
+//
+// Middleware intégré
+// Static est le seul middleware intégré, le reste est modulaire
+app.use("/static", express.static(__dirname + '/public', {index: false}));
 
+//
+//
+//
+// Middleware tiers
+// ajoute des fonctionnalités
+// http://expressjs.com/fr/resources/middleware.html
+app.use(cookieParser("secretUsedToSignCookies"));
+app.get('/cookies', function (req, res) {
+    // Cookies that have not been signed
+    console.log('Cookies: ', req.cookies);
 
+    // Cookies that have been signed
+    console.log('Signed Cookies: ', req.signedCookies);
 
-
+    res.end();
+});
 
 
 // déclarer une écoute sur 3000

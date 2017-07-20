@@ -12,6 +12,8 @@ app.use("/", express.static(__dirname + '/public'));
 // ajouter d'autre répertoires au même chemin
 app.use("/", express.static(__dirname + '/.'));
 
+app.use("/noindex", express.static(__dirname + '/public', {index: false}));
+
 // déclarer une écoute sur 3000
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
