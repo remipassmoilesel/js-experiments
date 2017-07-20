@@ -35,6 +35,11 @@ app.get(/[0-9]{1,3}/i, function (req, res) {
     res.send("/[0-9]{1,3}/i");
 });
 
+// avec argument
+app.get('/user/:id', function (req, res, next) {
+    res.send('USER: ' + req.params.id);
+});
+
 // traiter une route avec plusieurs fonctions
 app.get('/example/b',
     function (req, res, next) {

@@ -11,3 +11,5 @@ console.log(JSON.stringify(obj));
 console.log("Tester si défini sans erreurs");
 console.log(typeof obj.notExisting === "undefined");
 
+// now
+console.log(Date.now())
