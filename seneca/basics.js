@@ -41,3 +41,14 @@ seneca.act({role: 'math', cmd: 'sum2', left: 1, right: 2}, function (err, result
     }
     console.log(result)
 });
+
+// surcharge: nouvelle procédure avec un paramètre en plus
+seneca.add({role: 'math', cmd: 'sum', integer: true}, function (msg, respond) {
+    var sum = Math.floor(msg.left) + Math.floor(msg.right)
+    respond(null, { answer: sum })
+});
+
+// cet appel concerne la premiere procédure
+seneca.act({role: 'math', cmd: 'sum', left: 1.5, right: 2.5}, console.log);
+// celui ci la deuxième, car plus spécifique
+seneca.act({role: 'math', cmd: 'sum', left: 1.5, right: 2.5, integer: true}, console.log);
