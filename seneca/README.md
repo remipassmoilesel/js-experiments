@@ -4,8 +4,8 @@ A microservice toolkit for NodeJS. Seneca allow better communications between mi
 
 See also: 
 
-http://senecajs.org/getting-started/#writing-microservices
-https://github.com/senecajs/ramanujan
+- http://senecajs.org/getting-started/
+- https://github.com/senecajs/ramanujan
 
 Example:    
     
