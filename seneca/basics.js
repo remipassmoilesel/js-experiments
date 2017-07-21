@@ -2,7 +2,7 @@ var seneca = require('seneca')();
 
 // ajouter une action à l'instance courante seneca
 seneca.add({role:"math", cmd:"sum"}, (msg, reply) => {
-    // le pattern peut être défini de cette manière également: {'role:math,cmd:sum'}
+    // le pattern peut être défini de cette manière également: 'role:math,cmd:sum'
     
     if(!msg.left){
         reply(new Error("Missing left part"));
