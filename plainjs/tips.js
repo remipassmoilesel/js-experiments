@@ -24,3 +24,9 @@ function toLog(arg1, arg2){
 
 console.log("toLog.toString()");
 console.log(toLog.toString());
+
+// display env vars
+console.log("process.env");
+console.log(process.env);
+console.log("process.env.PATH");
+console.log(process.env.PATH);
