@@ -52,3 +52,7 @@ seneca.add({role: 'math', cmd: 'sum', integer: true}, function (msg, respond) {
 seneca.act({role: 'math', cmd: 'sum', left: 1.5, right: 2.5}, console.log);
 // celui ci la deuxième, car plus spécifique
 seneca.act({role: 'math', cmd: 'sum', left: 1.5, right: 2.5, integer: true}, console.log);
+
+
+// pin: pattern matching. Le pin 'role:math' va correspondre à 'role:math, cmd:product', 'role:math, cmd:sum', etc ...
+seneca.listen({ type: 'tcp', pin: 'role:math' });
