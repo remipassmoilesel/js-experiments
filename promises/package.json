@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.5.0",
+    "f-promise": "^1.2.4",
     "sleep": "^5.1.1"
   }
 }
