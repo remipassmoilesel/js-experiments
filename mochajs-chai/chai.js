@@ -5,7 +5,10 @@ var assert = require('chai').assert
     , expect = require('chai').expect
     , foo = 'bar'
     , beverages = {tea: ['chai', 'matcha', 'oolong']}
-    , should = require('chai').should();
+    , should = require('chai').should()
+    , chaiAsPromised = require("chai-as-promised");
+
+chai.use(chaiAsPromised);
 
 // with chai / assert
 describe("ChaiTest", function () {
@@ -30,4 +33,43 @@ describe("ChaiTest", function () {
         foo.should.have.lengthOf(3);
         beverages.should.have.property('tea').with.lengthOf(3);
     });
+});
+
+
+// test promises
+const originalString = 'azerty';
+function returnString() {
+    return new Promise((resolve, reject) => {
+        resolve(originalString);
+    });
+}
+
+function registerHandler(handler) {
+    setTimeout(() => {
+        handler(originalString);
+    }, 300);
+}
+
+describe('> basic testing', () => {
+
+    // mauvais test, n'est jamais rouge
+    it('> basic test 1', () => {
+        returnString().then((rslt) => {
+            assert.equal(rslt, originalString + 'zzzz');
+        });
+    });
+
+    // bon test
+    it('> basic test 2', () => {
+        return assert.eventually.equal(returnString(), originalString);
+    });
+
+    // test de handler
+    it('> basic test 3', (done) => {
+        registerHandler((str) => {
+            assert.equal(str, originalString);
+            done();
+        });
+    });
+
 });
