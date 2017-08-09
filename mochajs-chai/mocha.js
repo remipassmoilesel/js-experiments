@@ -51,7 +51,7 @@ describe('bla bla', () => {
                 done(); // test ok
             })
             .catch((e) => {
-                done(e); // test error
+                done(e); // test error /!\ ONLY ERRORS MAKE TEST FAIL, other values not
             });
     });
 

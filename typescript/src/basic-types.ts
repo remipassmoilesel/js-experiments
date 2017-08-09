@@ -119,4 +119,11 @@
     let strLength: number = (<string> someValue).length;
     strLength = (someValue as string).length;
 
+    // TYPER LE RETOUR D4UNE FONCTION
+    const doSomething = () : any => {
+        return null;
+    };
+
+    let someVar = doSomething<string>()
+    console.log(someVar);
 })();

@@ -1,5 +1,6 @@
 let wait = require('f-promise').wait;
 let run = require('f-promise').run;
+let map = require('f-promise').map;
 
 // cette fonction se résolvera toujours après deux secodnes
 function resolveAfterNSeconds(x) {
@@ -20,4 +21,14 @@ run(()=>{
     let value2 = wait(resolveAfterNSeconds(10));
     console.log("value2: " + value2);
 
+});
+
+//  iterer sans ajouter de run
+map(disconnecters, (d) => {
+    try {
+        wait(d());// some errors can be thrown here
+    } catch (e) {
+        // TODO: fix close connections errors
+        console.error(e.stack);
+    }
 });
