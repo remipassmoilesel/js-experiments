@@ -32,3 +32,27 @@ map(disconnecters, (d) => {
         console.error(e.stack);
     }
 });
+
+// gestion des erreurs
+
+function willThrow(){
+    return new Promise(function(resolve, reject){
+        reject(new Error('Error from willThrow()'));
+    });
+}
+
+run(()=>{
+    wait(willThrow()); // ne va pas jeter d'erreur, créera une UnhandledPromiseRejection
+
+    try{
+        wait(willThrow()); // va jeter une erreur
+    }catch(err){
+        console.error(err);
+    }
+});
+
+run(()=>{
+    wait(willThrow());
+}).catch(function(err){
+    console.error(err); // autre manière de capturer l'erreur
+});
