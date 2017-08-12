@@ -125,5 +125,8 @@
     };
 
     let someVar = doSomething<string>()
-    console.log(someVar);
+	    console.log(someVar);
+
+    // Typer une callback (types arguments) => type de retour
+    let callback: (arg1: string, arg2: number) => number;
 })();
