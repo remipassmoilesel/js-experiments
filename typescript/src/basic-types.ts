@@ -1,132 +1,132 @@
-(() => {
+//
+// BASICS
+//
 
-    //
-    // BASICS
-    //
+let isDone: boolean = false;
 
-    let isDone: boolean = false;
+let decimal: number = 6;
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
 
-    let decimal: number = 6;
-    let hex: number = 0xf00d;
-    let binary: number = 0b1010;
-    let octal: number = 0o744;
+let color: string = 'blue';
+// color = 'red';
 
-    let color: string = "blue";
-    // color = 'red';
+//
+// STRINGS
+//
 
-    //
-    // STRINGS
-    //
-
-    // template strings, multiline
-    let fullName: string = `Bob Bobbington`;
-    let age: number = 37;
-    let sentence: string = `Hello, my name is ${ fullName }.
+// template strings, multiline
+let fullName: string = `Bob Bobbington`;
+let age: number = 37;
+let sentence: string = `Hello, my name is ${ fullName }.
 
     I'll be ${ age + 1 } years old next month.`;
 
-    //
-    // TUPLES
-    //
+//
+// TUPLES
+//
 
-    // Declare a tuple type
-    let tupleX: [string, number];
-    // Initialize it
-    tupleX = ["hello", 10]; // OK
-    // Initialize it incorrectly
-    // tupleX = [10, "hello"]; // Error
+// Declare a tuple type
+let tupleX: [string, number];
+// Initialize it
+tupleX = ['hello', 10]; // OK
+// Initialize it incorrectly
+// tupleX = [10, "hello"]; // Error
 
-    console.log("tupleX[0].substr(1)");
-    console.log(tupleX[0].substr(1)); // OK
-    // console.log(tupleX[1].substr(1)); // Error
+console.log('tupleX[0].substr(1)');
+console.log(tupleX[0].substr(1)); // OK
+// console.log(tupleX[1].substr(1)); // Error
 
-    // extend a tuple
-    tupleX[5] = "Hey ";
+// extend a tuple
+tupleX[5] = 'Hey ';
 
 
-    //
-    // ENUMS
-    //
+//
+// ENUMS
+//
 
-    enum Color {Red, Green, Blue}
-    let c1: Color = Color.Green;
+enum Color {Red, Green, Blue}
 
-    console.log("Color.Red === 0");
-    console.log(Color.Red === 0);
+let c1: Color = Color.Green;
 
-    // change values, count start at 1 instead of zero
-    enum Color1 {Red = 1, Green, Blue}
+console.log('Color.Red === 0');
+console.log(Color.Red === 0);
 
-    console.log("Color1.Green === 2");
-    console.log(Color1.Green === 2);
+// change values, count start at 1 instead of zero
+enum Color1 {Red = 1, Green, Blue}
 
-    // set values manually
-    enum Color2 {Red = 1, Green = 2, Blue = 4}
+console.log('Color1.Green === 2');
+console.log(Color1.Green === 2);
 
-    console.log("Color2.Blue === 4");
-    console.log(Color2.Blue === 4);
+// set values manually
+enum Color2 {Red = 1, Green = 2, Blue = 4}
 
-    enum Color3 {Red = 1, Green, Blue}
-    let colorName: string = Color3[2];
+console.log('Color2.Blue === 4');
+console.log(Color2.Blue === 4);
 
-    console.log("colorName");
-    console.log(colorName);
+enum Color3 {Red = 1, Green, Blue}
 
-    //
-    // ANY
-    //
+let colorName: string = Color3[2];
 
-    // When we are not sure of the type. The type will be determined at the first affectation.
+console.log('colorName');
+console.log(colorName);
 
-    let notSure: any = 4;
-    notSure = "maybe a string instead";
-    notSure = false; // okay, definitely a boolean
+//
+// ANY
+//
 
-    let anyList: any[] = [1, true, "free"];
-    anyList[1] = 100;
+// When we are not sure of the type. The type will be determined at the first affectation.
 
-    //
-    // VOID, UNDEFINED, NULL, NEVER
-    //
+let notSure: any = 4;
+notSure = 'maybe a string instead';
+notSure = false; // okay, definitely a boolean
 
-    // usefull only on method
+let anyList: any[] = [1, true, 'free'];
+anyList[1] = 100;
 
-    function warnUser(): void {
-        alert("This is my warning message");
-    }
+//
+// VOID, UNDEFINED, NULL, NEVER
+//
 
-    // vars can only be undefined or null
+// usefull only on method
 
-    let unusable: void = undefined;
-    unusable = null;
-    // unusable = 1; // error
+function warnUser(): void {
+    alert('This is my warning message');
+}
 
-    let undefinedVar: undefined = undefined;
-    let nullVar: null = null;
+// vars can only be undefined or null
 
-    // Functions returning never must have unreachable end point
-    function error(message: string): never {
-        throw new Error(message);
-    }
+let unusable: void = undefined;
+unusable = null;
+// unusable = 1; // error
 
-    //
-    // TYPE ASSERTION
-    //
+let undefinedVar: undefined = undefined;
+let nullVar: null = null;
 
-    // look like a cast
+// Functions returning never must have unreachable end point
+function error(message: string): never {
+    throw new Error(message);
+}
 
-    let someValue: any = "this is a string";
-    let strLength: number = (<string> someValue).length;
-    strLength = (someValue as string).length;
+//
+// TYPE ASSERTION
+//
 
-    // TYPER LE RETOUR D4UNE FONCTION
-    const doSomething = () : any => {
-        return null;
-    };
+// look like a cast
 
-    let someVar = doSomething<string>()
-	    console.log(someVar);
+let someValue: any = 'this is a string';
+let strLength: number = (<string> someValue).length;
+strLength = (someValue as string).length;
 
-    // Typer une callback (types arguments) => type de retour
-    let callback: (arg1: string, arg2: number) => number;
-})();
+// TYPER LE RETOUR D'UNE FONCTION
+const doSomething = (): any => {
+    return null;
+};
+
+let someVar = doSomething<string>();
+console.log(someVar);
+
+// Typer une callback (types arguments) => type de retour
+let callback: (arg1: string, arg2: number) => number;
+

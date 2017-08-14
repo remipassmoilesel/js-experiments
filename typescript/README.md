@@ -7,13 +7,7 @@ Usage:
 	$ git clone https//github.com/remipassmoilesel/typescript-experiments
 	$ cd typescript-experiments 
 	
-	# Lint
-	$ gulp tslint
-
-	# Compile
-	$ gulp tsc
-
-	# Watch
-	$ gulp
+	$ npm isntall -g typescript tslint 
+	$ tsc -w
 
 Notes and examples: see `notes/` and `src/`
