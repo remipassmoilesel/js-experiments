@@ -1,0 +1,1 @@
+# Various experiments on the KeyCloak authentication server with the NodeJs adapter

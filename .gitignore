@@ -1,0 +1,7 @@
+node_modules
+.idea
+typescript/dist/
+typescript/build/
+*.exe
+pkg/hello-world-linux
+pkg/hello-world-macos

@@ -1,0 +1,15 @@
+{
+  "name": "seneca-experiments",
+  "version": "1.0.0",
+  "description": "A microservice toolkit for NodeJS. Seneca allow better communications between micro services.",
+  "main": "basics.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "seneca": "^3.4.1"
+  }
+}
