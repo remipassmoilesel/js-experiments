@@ -1,4 +1,3 @@
-
 console.log(`Starting sequence ...`);
 
 const promises = [];
@@ -12,16 +11,18 @@ const func = async () => {
             console.log("entering j=" + j);
 
             const p = new Promise((resolve, reject) => {
-                setTimeout(() => {
+                setTimeout(((i, j) => {
                     console.log("Resolved: i=" + i + " j=" + j);
                     resolve();
-                }, 1000);
-            }).then(() => {
-                console.log("Then resolved !");
-            });
+                }).bind(null, i, j), 1000);
+            })
+                .then(((i, j) => {
+                    console.log(`Then resolved: ${i} ${j}`);
+                }).bind(null, i, j));
 
             promises.push(p);
             await p;
+            console.log(`After await: ${i} ${j}`);
         }
     }
 
