@@ -16,9 +16,9 @@ const func = async () => {
                     resolve();
                 }).bind(null, i, j), 1000);
             })
-                .then(((i, j) => {
-                    console.log(`Then resolved: ${i} ${j}`);
-                }).bind(null, i, j));
+            .then(((i, j) => {
+                console.log(`Then resolved: ${i} ${j}`);
+            }).bind(null, i, j));
 
             promises.push(p);
             await p;
