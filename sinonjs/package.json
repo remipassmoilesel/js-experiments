@@ -1,0 +1,28 @@
+{
+  "name": "sinonjs-experiment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "node_modules/.bin/rimraf build",
+    "compile": "node_modules/.bin/tsc --pretty",
+    "compile-watch": "node_modules/.bin/tsc --pretty -w",
+    "clean-compile": "npm run clean && npm run compile",
+    "test": "npm run clean-compile && node_modules/.bin/mocha 'build/tests/**/*Test.js'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.43",
+    "@types/node": "^8.0.34",
+    "@types/sinon": "^2.3.6",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "rimraf": "^2.6.2",
+    "save": "^2.3.1",
+    "sinon": "^4.0.1",
+    "source-map-support": "^0.5.0",
+    "typescript": "^2.5.3"
+  }
+}

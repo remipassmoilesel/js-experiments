@@ -6,3 +6,4 @@ typescript/build/
 pkg/hello-world-linux
 pkg/hello-world-macos
 package-lock.json
+build/
