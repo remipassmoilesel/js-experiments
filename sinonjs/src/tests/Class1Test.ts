@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
-import { Class1 } from '../lib/Class1';
 import { SinonMock } from 'sinon';
+import { Class1 } from '../lib/Class1';
 
 require('source-map-support').install();
 
@@ -56,6 +56,27 @@ describe('Sinon js experiment', () => {
 
         // check if return1 was called
         mock.verify();
+
+    });
+
+    it('Object stub experiment', () => {
+
+        // create a class
+        const class1 = new Class1();
+
+        assert.equal(class1.return1(), 1);
+
+        // stub one mthod in object
+        const stub = sinon.stub(class1, 'return1');
+
+        // describe expected behavior, called once
+        stub.returns(2);
+
+        // stub only when called with these argument, or specify args
+        // stub.withArgs(1, 2, 3);
+        // stub.onCall(0).returns(1);
+
+        assert.equal(class1.return1(), 2);
 
     });
 });
