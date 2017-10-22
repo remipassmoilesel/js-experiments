@@ -1,7 +1,7 @@
 {
   "name": "electron-experiments",
   "version": "1.0.0",
-  "main": "build/electron-app-init.js",
+  "main": "build/electron-main.js",
   "scripts": {
     "clean": "node_modules/.bin/rimraf build",
     "compile": "node_modules/.bin/tsc --pretty",
