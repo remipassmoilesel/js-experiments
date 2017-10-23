@@ -1,11 +1,15 @@
 {
+
+  // Attention, modifier la configuration peut empêcher
+  // la compilation Typescript
+
   "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "noImplicitAny": true,
-    "module": "commonjs",
+    // alignement avec le support navigateur de Vue
     "target": "es5",
-    "jsx": "react",
-    "allowJs": true
+    // activation de la déduction stricte pour les propriétés de données sur `this`
+    "strict": true,
+    // si vous utilisez webpack 2+ ou rollup, permettre le tree shaking :
+    "module": "es2015",
+    "moduleResolution": "node"
   }
 }
