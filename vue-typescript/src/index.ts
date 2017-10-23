@@ -4,6 +4,9 @@ import { HelloWorld } from "./HelloWorld";
 const hw = new HelloWorld();
 hw.sayHello();
 
-const Component = Vue.extend({
-    // déduction de type activée
+const app = new Vue({
+    el: "#app",
+    data: {
+        message: "Hello Vue !",
+    },
 });

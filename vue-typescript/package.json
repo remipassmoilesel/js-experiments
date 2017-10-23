@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean": "node_modules/.bin/rimraf build",
+    "clean": "node_modules/.bin/rimraf dist",
     "compile": "node_modules/.bin/tsc --pretty",
     "compile-watch": "node_modules/.bin/tsc --pretty -w",
     "clean-compile": "npm run clean && npm run compile",
     "test": "npm run clean-compile && node_modules/.bin/mocha 'build/tests/**/*Test.js'",
-    "pack": "node_modules/.bin/webpack"
+    "pack": "npm run clean && node_modules/.bin/webpack",
+    "pack-watch": "npm run clean && node_modules/.bin/webpack  --progress --colors --watch"
   },
   "author": "",
   "license": "ISC",
