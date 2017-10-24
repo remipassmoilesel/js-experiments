@@ -3,11 +3,6 @@ const webpack = require('webpack');
 
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-const extractSass = new ExtractTextPlugin({
-    filename: "[name].css",
-    //disable: process.env.NODE_ENV === "development"
-});
-
 module.exports = {
     entry: './src/index.ts',
     output: {
@@ -55,13 +50,7 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                use: [{
-                    loader: "style-loader" // creates style nodes from JS strings
-                }, {
-                    loader: "css-loader" // translates CSS into CommonJS
-                }, {
-                    loader: "sass-loader" // compiles Sass to CSS
-                }]
+                loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
             }
         ]
     },
@@ -80,7 +69,10 @@ module.exports = {
     },
     devtool: '#eval-source-map',
     plugins: [
-        extractSass
+        new ExtractTextPlugin({ // define where to save the file
+            filename: '[name].bundle.css',
+            allChunks: true,
+        })
     ]
 };
 
