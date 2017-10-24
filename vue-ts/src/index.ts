@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import { Consumer } from './components/consumer/Consumer';
 import { Enterprise } from './components/enterprise/Enterprise';
 import { HelloWorldForm } from './components/hello-world/HelloWorldForm';
+import './main.scss';
 
 // create and register components
 const helloWorldFormComponent = new HelloWorldForm();
