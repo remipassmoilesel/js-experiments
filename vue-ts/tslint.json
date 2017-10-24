@@ -13,7 +13,8 @@
     "no-shadowed-variable": false,
     "space-before-function-paren": false,
     "only-arrow-functions": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"]
   },
   "rulesDirectory": []
 }
