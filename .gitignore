@@ -9,3 +9,4 @@ package-lock.json
 build/
 dist/
 npm-debug.log
+bower_components
