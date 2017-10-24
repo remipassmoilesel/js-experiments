@@ -14,8 +14,10 @@
   "license": "ISC",
   "devDependencies": {
     "@types/vue": "^2.0.0",
+    "@types/webpack": "^3.0.13",
     "chai": "^4.1.2",
     "css-loader": "^0.28.7",
+    "html-loader": "^0.5.1",
     "mocha": "^4.0.1",
     "rimraf": "^2.6.2",
     "ts-loader": "^3.0.5",

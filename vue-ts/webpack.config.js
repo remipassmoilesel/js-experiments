@@ -38,6 +38,13 @@ module.exports = {
                 options: {
                     name: '[name].[ext]?[hash]'
                 }
+            },
+            {
+                test: /\.(htm|html)$/,
+                loader: 'html-loader',
+                options: {
+                    name: '[name].[ext]'
+                }
             }
         ]
     },
