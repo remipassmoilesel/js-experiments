@@ -1,0 +1,45 @@
+<div class="ui grid stackable left-menu-box">
+
+    <!-- Main menu -->
+
+    <div class="ui vertical inverted menu sticky">
+
+        <div class="item">
+            <div class="header">Products</div>
+            <div class="menu">
+                <router-link class="item" to="/enterprise">Enterprise</router-link>
+                <router-link class="item" to="/consumer">Consumer</router-link>
+            </div>
+        </div>
+        <div class="item">
+            <div class="header">CMS Solutions</div>
+            <div class="menu">
+                <a class="item">Rails</a>
+                <a class="item">Python</a>
+                <a class="item">PHP</a>
+            </div>
+        </div>
+        <div class="item">
+            <div class="header">Hosting</div>
+            <div class="menu">
+                <a class="item">Shared</a>
+                <a class="item">Dedicated</a>
+            </div>
+        </div>
+        <div class="item">
+            <div class="header">Support</div>
+            <div class="menu">
+                <a class="item">E-mail Support</a>
+                <a class="item">FAQs</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main app content, Where views triggered by router goes -->
+
+    <div class="eleven wide column" style="flex: 1;">
+        <router-view></router-view>
+    </div>
+
+</div>
+
