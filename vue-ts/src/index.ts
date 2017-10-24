@@ -1,17 +1,11 @@
-import Vue from 'vue';
-import { VerticalMenu } from './components/vertical-menu/VerticalMenu';
+import Vue from "vue";
+import { HelloWorld } from "./components/hello-world/HelloWorld";
+import { VerticalMenu } from "./components/vertical-menu/VerticalMenu";
 
-Vue.component('vertical-menu', new VerticalMenu());
+Vue.component("vertical-menu", new VerticalMenu());
+Vue.component("hello-world", new HelloWorld());
 
 let v = new Vue({
-    el: '#app',
-    template: `
-    <div>
-        <vertical-menu></vertical-menu>
-        <div>Hello {{name}}!</div>
-        Name: <input v-model="name" type="text">
-    </div>`,
-    data: {
-        name: 'World',
-    },
+    el: "#app",
+    template: require("./main.html"),
 });
