@@ -1,0 +1,31 @@
+{
+  "name": "vue-ts-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node_modules/.bin/webpack-dev-server --content-base .",
+    "clean": "node_modules/.bin/rimraf build",
+    "compile": "node_modules/.bin/webpack",
+    "clean-compile": "npm run clean && npm run compile",
+    "test": "npm run clean-compile && node_modules/.bin/mocha 'dist/tests/**/*Test.js'"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/vue": "^2.0.0",
+    "chai": "^4.1.2",
+    "css-loader": "^0.28.7",
+    "mocha": "^4.0.1",
+    "rimraf": "^2.6.2",
+    "ts-loader": "^3.0.5",
+    "typescript": "^2.5.3",
+    "vue-loader": "^13.3.0",
+    "vue-template-compiler": "^2.2.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.3"
+  },
+  "dependencies": {
+    "vue": "^2.5.2"
+  }
+}

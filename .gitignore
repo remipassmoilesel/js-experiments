@@ -8,3 +8,4 @@ pkg/hello-world-macos
 package-lock.json
 build/
 dist/
+npm-debug.log
