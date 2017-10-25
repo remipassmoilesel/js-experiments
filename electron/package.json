@@ -1,0 +1,33 @@
+{
+  "name": "electron-experiments",
+  "version": "1.0.0",
+  "main": "build/electron-main.js",
+  "scripts": {
+    "clean": "node_modules/.bin/rimraf build",
+    "compile": "node_modules/.bin/tsc --pretty",
+    "start": "npm run clean-compile && ./node_modules/.bin/electron . &",
+    "compile-watch": "node_modules/.bin/tsc --pretty -w",
+    "clean-compile": "npm run clean && npm run compile",
+    "test": "npm run clean-compile && node_modules/.bin/mocha 'build/tests/**/*Test.js'",
+    "lint": "npm run clean-compile && ./node_modules/tslint/bin/tslint src/**/*  "
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "electron": "^1.7.9",
+    "@types/node": "^8.0.46",
+    "rimraf": "^2.6.2",
+    "source-map-support": "^0.5.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.43",
+    "chai": "^4.1.2",
+    "devtron": "^1.4.0",
+    "mocha": "^4.0.1",
+    "sinon": "^4.0.1"
+  }
+}
