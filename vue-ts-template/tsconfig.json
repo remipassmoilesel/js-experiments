@@ -8,6 +8,19 @@
     "moduleResolution": "node",
     "target": "es5"
   },
+  "rules": {
+    "no-consecutive-blank-lines": false,
+    "no-console": false,
+    "prefer-const": false,
+    "no-unnecessary-initializer": false,
+    "no-angle-bracket-type-assertion": false,
+    "no-shadowed-variable": false,
+    "space-before-function-paren": false,
+    "only-arrow-functions": false,
+    "max-classes-per-file": false,
+    "member-ordering": false,
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"]
+  },
   "include": [
     "./src/**/*"
   ]
