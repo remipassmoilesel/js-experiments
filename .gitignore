@@ -8,6 +8,8 @@ pkg/hello-world-linux
 pkg/hello-world-macos
 package-lock.json
 build/
+!quasar-typescript/build
+!vuetify-typescript-template/build
 dist/
 npm-debug.log
 bower_components
