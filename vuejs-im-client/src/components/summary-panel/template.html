@@ -1,0 +1,27 @@
+<div class="summary-panel">
+
+    <h2>Summary</h2>
+
+    <panel-pres>
+        On this panel you can see how many servers are up and also various stats on
+        the current infra.
+    </panel-pres>
+
+    <div v-if="infraState">
+
+        <div class="main-entry-point">Main entry point:
+            <a :href="mainEntrypoint" target="_blank">{{ mainEntrypoint }}</a></div>
+
+        <div>{{ lastNginxStats }}</div>
+
+        <div class="infraStatus">Infra status: {{ infraState.state }}</div>
+
+        <machine-small v-for="machine in machines" :machine="machine" :key="machine.name"></machine-small>
+
+    </div>
+
+    <div v-else>
+        Please wait ...
+    </div>
+
+</div>

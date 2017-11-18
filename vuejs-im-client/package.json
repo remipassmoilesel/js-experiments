@@ -1,0 +1,17 @@
+{
+  "name": "vue-ts-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "../node_modules/.bin/webpack-dev-server --content-base .",
+    "clean": "../node_modules/.bin/rimraf build",
+    "build": "../node_modules/.bin/webpack",
+    "build-watch": "../node_modules/.bin/webpack --progress --colors --watch",
+    "clean-build": "npm run clean && npm run build",
+    "test": "npm run clean-build && ../node_modules/.bin/mocha 'dist/tests/**/*Test.js'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

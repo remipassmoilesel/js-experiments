@@ -1,0 +1,22 @@
+<div>
+
+    <h2>Virtual machines</h2>
+
+    <panel-pres>
+        On this panel you can see <i>virtual machines</i> created from the models.
+    </panel-pres>
+
+    <!-- Show error message if an error occured -->
+    <div v-if="errorMessage.length > 0">
+        Error while fetching machines:
+        <pre>{{ errorMessage }}</pre>
+    </div>
+
+    <!-- Or show models -->
+    <div class="machineList" v-else>
+        <div v-for="machine in machines">
+            <machine :machine="machine"></machine>
+        </div>
+    </div>
+
+</div>

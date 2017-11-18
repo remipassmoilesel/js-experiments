@@ -1,0 +1,18 @@
+<div class="eventsDisplay">
+
+    <h2>Lasts events</h2>
+
+    <panel-pres>
+        On this panel you see events emitted while modifying your infrastructure.
+    </panel-pres>
+
+    <div class="events-viewer">
+
+        <pre v-for="ev in eventsList">
+[{{ ev.date }}] {{ ev.name }}
+{{ ev.data ? `data=${JSON.stringify(ev.data)}` : '' }}
+        </pre>
+
+    </div>
+
+</div>

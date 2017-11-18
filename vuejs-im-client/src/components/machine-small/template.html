@@ -1,0 +1,21 @@
+<div class="machine-small">
+
+    <!--<div>{{ model.playbookVariables }}</div>-->
+
+    <div class="card" style="width: 90%">
+
+        <div class="card-title">
+            <img src="../../../assets/server-up.svg.png" v-if="machine.state === 'HEALTHY'"/>
+            <img src="../../../assets/server-down.svg.png" v-else/>
+            Server: <i>{{ machine.name }}</i>
+            &nbsp;&nbsp;&nbsp;
+            Status: {{ machine.state }}
+            &nbsp;&nbsp;&nbsp;
+            Address: <a :href="'http://' + machine.address " target="_blank">{{ machine.address }}</a>
+        </div>
+
+        <a class="btn-floating halfway-fab waves-effect waves-light"><i class="fa fa-plus"></i></a>
+
+    </div>
+
+</div>

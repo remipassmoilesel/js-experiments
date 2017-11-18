@@ -1,0 +1,35 @@
+<div class="machine">
+
+    <!--<div>{{ model.playbookVariables }}</div>-->
+
+    <div class="card" v-if="machine">
+
+        <div class="card-content">
+
+            <div class="card-title">
+                Virtual machine: <i>{{ machine.name }}</i>
+            </div>
+
+            <div>State: {{ machine.state }}</div>
+
+            <div class="sub-title">Specifications</div>
+            <div>Model: {{ machine.model.name }}</div>
+            <div>Number of CPUs: {{ machine.cpu }}</div>
+            <div>Memory (RAM): {{ machine.memory }} Mo</div>
+            <div>Datastore: {{ machine.datastore }}</div>
+
+            <div class="sub-title">Network</div>
+            <div>IP address: {{ machine.address }}</div>
+
+            <div class="sub-title">Ansible configuration</div>
+            <ansible-configuration :configuration="machine.ansibleConfiguration"></ansible-configuration>
+
+        </div>
+
+        <div class="card-action right-align">
+            <a href="#" class="btn">Show model manifest</a>
+        </div>
+
+    </div>
+
+</div>

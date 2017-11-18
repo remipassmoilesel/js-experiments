@@ -1,0 +1,50 @@
+<div class="bots-control">
+
+    <panel-pres>
+        On this panel you can launch load tests in order to make your
+        infrastructure scale up or down.
+    </panel-pres>
+
+    <div class="row">
+        <form class="col s12">
+
+            <div class="row">
+                <div class="col s4 field-label valign-wrapper">
+                    Load test scenario:
+                </div>
+                <div class="input-field col s8">
+                    <select id="selectScenario" @click="updateSelectedValue">
+                        <option v-for="scenario in scenaries" :value="scenario.id">{{ scenario.name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12" v-if="selectedScenario">
+
+                    Scenario description: {{ selectedScenario.description }}
+
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col s4 field-label valign-wrapper">
+                    &nbsp;
+                </div>
+
+                <div class="input-field col s8 right-align">
+                    <a class="waves-effect waves-light btn" @click="stopLoadTest">
+                        <i class="fa fa-crosshairs"></i>&nbsp;Stop load test
+                    </a>
+                    <a class="waves-effect waves-light btn" @click="startLoadTest">
+                        <i class="fa fa-check"></i>&nbsp;Start load test
+                    </a>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+
+</div>

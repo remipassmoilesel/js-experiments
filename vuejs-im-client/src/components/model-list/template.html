@@ -1,0 +1,23 @@
+<div>
+
+    <h2>Server models</h2>
+
+    <panel-pres>
+        On this panel you can see <i>models</i> of virtual machines, which will be used
+        to create virtual machines.
+    </panel-pres>
+
+    <!-- Show error message if an error occured -->
+    <div v-if="errorMessage.length > 0">
+        Error while fetching models:
+        <pre>{{ errorMessage }}</pre>
+    </div>
+
+    <!-- Or show models -->
+    <div class="modelList" v-else>
+        <div v-for="model in models">
+            <model :model="model"></model>
+        </div>
+    </div>
+
+</div>

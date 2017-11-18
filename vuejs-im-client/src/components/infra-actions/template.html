@@ -1,0 +1,75 @@
+<div class="actionsMenu">
+
+    <panel-pres>
+        On this panel you can modify your infrastructure by choosing an action below.
+        You can create an infrastructure of servers from the models, scale it up and down, then
+        destroy it.
+    </panel-pres>
+
+    <table>
+        <tr>
+            <td>
+                <button class="waves-effect waves-light btn" @click="applyInfra">
+                    <i class="fa fa-share" aria-hidden="true"></i>&nbsp; Apply infra
+                </button>
+            </td>
+            <td>
+                Create or modify the current infrastructure according to the current configuration.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="waves-effect waves-light btn">
+                    <i class="fa fa-line-chart" aria-hidden="true"></i>&nbsp; Enable auto-scaling
+                </button>
+            </td>
+            <td>
+                Enable the auto scaling of current infrastructure. Autoscaling will add or remove machines
+                according to the current number of active connexions to the load balancer.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="waves-effect waves-light btn" @click="scaleDown">
+                    <i class="fa fa-minus" aria-hidden="true"></i>&nbsp; Scale min
+                </button>
+            </td>
+            <td>
+                Scale manually the current infra to the maximum number of machines.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="waves-effect waves-light btn" @click="scaleUp">
+                    <i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Scale max
+                </button>
+            </td>
+            <td>
+                Scale manually the current infra to the minimum number of machines.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="waves-effect waves-light btn" @click="showDestroyInfraDialog">
+                    <i class="fa fa-trash" aria-hidden="true"></i>&nbsp; Destroy infra
+                </button>
+            </td>
+            <td>
+                Destroy current machines. This operation cannot be undone.
+            </td>
+        </tr>
+    </table>
+
+    <!-- Destroy modal -->
+    <div id="destroyModal" class="modal">
+        <div class="modal-content">
+            <h4>Infra destruction</h4>
+            <p>This action cannot be undone, are you sure ?</p>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+            <a class="modal-action waves-effect waves-green btn-flat" id="btnConfirmDestroy">Destroy all</a>
+        </div>
+    </div>
+
+</div>

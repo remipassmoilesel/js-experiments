@@ -10,6 +10,10 @@ Compiler pour exemple:
 
     $ tsc greeter-basic.ts
 
+Créer un fichier exemple de configuration:
+
+    $ tsc --init
+
 ## Installer Tslint
 
 Installer globalement:

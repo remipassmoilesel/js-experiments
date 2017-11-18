@@ -1,0 +1,38 @@
+<div class="model">
+
+    <!--<div>{{ model.playbookVariables }}</div>-->
+
+    <div class="card">
+
+        <div class="card-content">
+
+            <div class="card-title">
+                Server model: <i>{{ model.name }}</i>
+            </div>
+
+            <div class="sub-title">Specifications</div>
+            <div>Number of CPUs: {{ model.specifications.cpu }}</div>
+            <div>Memory(RAM): {{ model.specifications.memory }} Mo</div>
+
+            <div class="sub-title">Scaling</div>
+            <div>Minimum number of instances: {{ model.minInstances }}</div>
+            <div>Maximum number of instances: {{ model.maxInstances }}</div>
+
+            <div class="sub-title">Network</div>
+            <div>Lower IP address: {{ model.network.addressMin }}</div>
+            <div>Upper IP address: {{ model.network.addressMax }}</div>
+
+            <div class="sub-title">Ansible configuration</div>
+            <ansible-configuration :configuration="model.ansibleConfiguration"></ansible-configuration>
+
+        </div>
+
+        <div class="card-action right-align">
+            <a href="#" class="btn" :id="showYamlButtonId">Show YAML manifest</a>
+        </div>
+
+    </div>
+
+    <model-manifest-modal :model="model" :id="yamlModalId"></model-manifest-modal>
+
+</div>
