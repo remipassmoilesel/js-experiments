@@ -3,7 +3,7 @@
 var Db = require('tingodb')().Db,
     assert = require('assert');
 
-var db = new Db('./db', {});
+var db = new Db('./simple-db', {});
 
 // Fetch a collection to insert document into
 var collection = db.createCollection('collection1');
