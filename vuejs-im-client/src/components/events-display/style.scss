@@ -1,0 +1,18 @@
+
+.eventsDisplay {
+
+  .events-viewer {
+    width: 100%;
+    background: black;
+    height: 500px;
+    overflow: scroll;
+    font-family: monospace;
+    padding: 1em;
+
+    pre {
+      color: white;
+    }
+
+  }
+
+}

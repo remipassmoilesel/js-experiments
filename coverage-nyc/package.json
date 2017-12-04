@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node_modules/mocha/bin/_mocha --full-trace --recursive 'test/**/*Spec.js'",
-    "coverage": "node_modules/.bin/nyc node_modules/.bin/_mocha --full-trace --recursive 'test/**/*Spec.js'"
+    "coverage": "node_modules/.bin/nyc node_modules/.bin/_mocha --full-trace --recursive 'test/**/*Spec.js'",
   },
   "dependencies": {
     "nyc": "^11.1.0"

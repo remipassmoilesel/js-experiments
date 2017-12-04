@@ -1,0 +1,40 @@
+<div class="ansible-configuration">
+
+    <!--<div>{{ configuration }}</div>-->
+
+    <div v-if="configuration.creation && configuration.creation.length > 0">
+        <b>Creation</b>
+        <ul class="collection">
+            <li class="collection-item" v-for="playbook in configuration.creation">{{ playbook }}</li>
+        </ul>
+    </div>
+
+    <div v-if="configuration.beforeScaleDown && configuration.beforeScaleDown.length > 0">
+        <b>Before scale down</b>
+        <ul class="collection">
+            <li class="collection-item" v-for="playbook in configuration.beforeScaleDown">{{ playbook }}</li>
+        </ul>
+    </div>
+
+    <div v-if="configuration.afterScaleDown && configuration.afterScaleDown.length > 0">
+        <b>After scale down</b>
+        <ul class="collection">
+            <li class="collection-item" v-for="playbook in configuration.afterScaleDown">{{ playbook }}</li>
+        </ul>
+    </div>
+
+    <div v-if="configuration.beforeScaleUp && configuration.beforeScaleUp.length > 0">
+        <b>Before scale up</b>
+        <ul class="collection">
+            <li class="collection-item" v-for="playbook in configuration.beforeScaleUp">{{ playbook }}</li>
+        </ul>
+    </div>
+
+    <div v-if="configuration.afterScaleUp && configuration.afterScaleUp.length > 0">
+        <b>After scale up</b>
+        <ul class="collection">
+            <li class="collection-item" v-for="playbook in configuration.afterScaleUp">{{ playbook }}</li>
+        </ul>
+    </div>
+
+</div>

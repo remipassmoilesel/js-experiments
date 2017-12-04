@@ -1,0 +1,16 @@
+
+.errorToast {
+  background: darkred;
+  color: white;
+}
+
+.infoToast {
+  background: darkblue;
+  color: white;
+}
+
+.toastContent {
+  .icon{
+    margin: 0.5em;
+  }
+}

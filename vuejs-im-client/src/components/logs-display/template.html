@@ -1,0 +1,29 @@
+<div class="logsDisplay">
+
+    <h2>Logs</h2>
+
+    <panel-pres>
+        On this panel you see system logs generated while modifying your infrastructure. Logs show you details
+        of modification.
+    </panel-pres>
+
+    <div v-if="logList && logList.length > 0">
+
+        <h3>Available logs</h3>
+        <ul class="collection">
+            <li class="collection-item" v-for="logName in logList">
+                <a @click="selectLog(logName)">{{ logName }}</a>
+            </li>
+        </ul>
+
+
+        <h3>Log: {{ selectedLogName }}</h3>
+        <pre class="log-viewer"> {{ selectedLogContent }}</pre>
+
+    </div>
+
+    <div v-else>
+        <p>No logs available.</p>
+    </div>
+
+</div>
