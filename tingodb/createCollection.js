@@ -5,7 +5,7 @@ var Db = require('tingodb')().Db,
 
 var db = new Db('./simple-db', {});
 
-// Fetch a collection to insert document into
+// Create a collection
 var collection = db.createCollection('collection1');
 
 // Insert a single document
