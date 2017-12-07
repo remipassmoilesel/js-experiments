@@ -1,0 +1,27 @@
+{
+  "name": "front-server",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "npm run compile && node build/index.js",
+    "clean": "./node_modules/.bin/rimraf build",
+    "lint": "./node_modules/.bin/tslint --force --format verbose 'src/**/*.ts'",
+    "lint-fix": "npm run lint -- --fix",
+    "compile": "../../../node_modules/.bin/tsc --pretty",
+    "compile-watch": "../../../node_modules/.bin/tsc --pretty -w",
+    "clean-compile": "npm run clean && npm run compile",
+    "clean-lint-compile": "npm run clean && npm run lint && echo Using TypeScript && npm run compile"
+  },
+  "dependencies": {
+    "ejs": "^2.5.7",
+    "express": "~4.15.2",
+    "express-handlebars": "^3.0.0",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.39",
+    "@types/lodash": "^4.14.88",
+    "@types/node": "^8.0.0",
+    "rimraf": "^2.6.1"
+  }
+}

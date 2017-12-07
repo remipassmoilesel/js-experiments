@@ -1,0 +1,18 @@
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/static/stylesheet.css"/>
+</head>
+<body>
+
+<h1>Application 1 (blue)</h1>
+
+<pre id="appConfig"></pre>
+
+<script>
+    window.appConfig = JSON.parse('<%- appConfig -%>');
+    document.querySelector('#appConfig').innerHTML = JSON.stringify(appConfig, null, 2);
+</script>
+
+</body>
+</html>
+
