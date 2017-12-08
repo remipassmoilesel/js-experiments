@@ -3,17 +3,18 @@ import { Express } from 'express';
 import * as ejs from 'ejs';
 import * as _ from 'lodash';
 import * as path from 'path';
-import { IFrontApplicationConfig } from './IServerConfig';
-import { log } from './utils';
+import { IFrontApplicationConfig } from './IFrontApplicationConfig';
+import { log } from '../utils';
+import { appConfigurations } from '../index';
 
-const projectRoot = path.resolve(__dirname, '..');
-const configurations: IFrontApplicationConfig[] = require(path.resolve(projectRoot, 'config'));
+const projectRoot = path.resolve(__dirname, '..', '..');
 const frontApplicationsRoot = path.resolve(projectRoot, 'front-applications');
 const port = process.env.PORT || 3080;
 
-log(`Initialized with configuration: ${JSON.stringify(configurations, null, 2)}`);
+log(`Initialized with configuration: ${JSON.stringify(appConfigurations, null, 2)}`);
 
-export class HttpServer {
+// TODO: setup several caches for configuration search
+export class TemplateServer {
     private app: Express;
 
     public init() {
@@ -66,11 +67,16 @@ export class HttpServer {
         this.app.set('view engine', 'html');
     }
 
+    /**
+     * Although we can serve static files with express, we prefer
+     * use Nginx instead
+     *
+     */
     private configureStaticServices() {
-        _.forEach(configurations, (config) => {
+        _.forEach(appConfigurations, (config) => {
             const route = this.getStaticRouteForConfig(config);
             log(`Serve static files for ${config.hostname} on route ${route}`);
-            this.app.use(route, express.static(path.join(frontApplicationsRoot, config.staticDirectory)));
+            this.app.use(route, express.static(path.join(frontApplicationsRoot, 'static')));
         });
     }
 
@@ -80,12 +86,13 @@ export class HttpServer {
 
     private getConfigForHostname(hostname: string): IFrontApplicationConfig {
 
-        const configs = _.filter(configurations, (config: IFrontApplicationConfig) => {
+        const configs = _.filter(appConfigurations, (config: IFrontApplicationConfig) => {
             return config.hostname.trim() === hostname.trim();
         });
 
         if (configs.length !== 1) {
-            throw new Error('Invaldi configuration number found');
+            throw new Error(`Invalid configuration number found, it should be unique.`
+                + ` Hostname=${hostname} Number=${configs.length}`);
         }
 
         return configs[0];

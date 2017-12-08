@@ -1,0 +1,62 @@
+
+# Front applications virtual hosts
+
+<% for(var i=0; i < frontApps.length; i++) { %>
+
+server {
+        listen 80;
+        listen [::]:80;
+
+        #access_log   /logs/<%= frontApps[i].hostname %>.access.log;
+        #error_log    /logs/<%= frontApps[i].hostname %>.error.log debug;
+
+        root /server/front-applications/<%= frontApps[i].baseDirectory %>;
+
+        server_name <%= frontApps[i].hostname %>;
+
+        # Redirect to templater if request is not for statis directory
+
+        # serve static dir
+        location /static {
+                root /server/front-applications/<%= frontApps[i].baseDirectory %>;
+        }
+
+        # Template index
+        location / {
+                proxy_pass http://127.0.0.1:3000/;
+                proxy_set_header Host $host;
+        }
+
+        # redirect server error pages to the static page /50x.html
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+
+}
+
+<% } %>
+
+# Default server, used if no host name match
+# TODO: Should redirect to a 404 page for each requests
+
+server {
+
+        listen       80   default;
+        server_name  _;
+
+        #access_log   /logs/default.access.log;
+        #error_log    /logs/default.error.log debug;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        # redirect server error pages to the static page /50x.html
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+
+}
