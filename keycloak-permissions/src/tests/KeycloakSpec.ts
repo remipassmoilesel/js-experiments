@@ -135,25 +135,51 @@ describe('Keycloak test', () => {
             .then((data: any) => {
                 // find admin client role id
                 return helper.getClientRoleInfos(realmName, data.clientUID, adminRoleName).then((roleInfos) => {
-                    data.realmAdminRoleId = roleInfos.id;
+                    data.clientAdminRoleId = roleInfos.id;
                     return data;
                 });
             })
             .then((data: any) => {
                 // find user realm role id
                 return helper.getRealmRoleInfos(realmName, data.clientUID, authorizedUserRoleName).then((roleInfos) => {
-                    data.realmAuthorizedUserRoleId = roleInfos.id;
+                    data.clientAuthorizedUserRoleId = roleInfos.id;
                     return data;
                 });
-            });
-        // .then((data) => {
-        //     { clientUID: '6b2f4059-c5c8-4332-a6c5-6c3fa37342a7',
-        //         adminRoleId: '012b2567-e1e0-44a2-bca9-5d4c77df2155',
-        //         authorizedUserRoleId: '92bfa891-5cdd-4289-b8e7-aa7bff21ad22' }
-        //
-        //     console.log(data);
-        // });
+            })
+            .then((data) => {
 
+                console.log(data);
+
+                // create a policy
+                const promises: Promise<any>[] = [];
+                promises.push(helper.createPolicy(realmName, data.clientUID,
+                    {
+                        type: 'role',
+                        logic: 'POSITIVE',
+                        name: 'Admins can administrate ' + clientName,
+                        roles: [
+                            { id: data.realmAdminRoleId, required: true },
+                            { id: data.clientAdminRoleId, required: true },
+                        ],
+                    }
+                ).then(function () {
+                    console.log(arguments);
+                }));
+                promises.push(helper.createPolicy(realmName, data.clientUID,
+                    {
+                        type: 'role',
+                        logic: 'POSITIVE',
+                        name: 'Authorized users can use ' + clientName,
+                        roles: [
+                            { id: data.realmAuthorizedUserRoleId, required: true },
+                            { id: data.clientAuthorizedUserRoleId, required: true },
+                        ],
+                    }
+                ));
+
+                return Promise.all(promises);
+
+            });
     });
 
     // it('Create resource should success', () => {

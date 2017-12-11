@@ -1,4 +1,4 @@
-export interface PolicyRepresentation {
+export interface PolicyRoleBasedRepresentation {
     type: 'role';
     logic: 'POSITIVE',
     name: string;

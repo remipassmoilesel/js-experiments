@@ -4,7 +4,7 @@ import { ClientRepresentation } from '../lib/ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
 import * as _ from 'lodash';
 import { RoleRepresentation } from '../lib/RealmRoleRepresentation';
-import { PolicyRepresentation } from '../lib/PolicyRepresentation';
+import { PolicyRoleBasedRepresentation } from '../lib/PolicyRoleBasedRepresentation';
 
 export class Helper {
     private authSettings: AuthSettings;
@@ -77,9 +77,10 @@ export class Helper {
     }
 
     public createPolicy(realmName: string, clientUID: string,
-                        policyRepr: PolicyRepresentation) {
+                        policyRepr: PolicyRoleBasedRepresentation) {
         return this.getAuth().then((auth) => {
             const options = {
+                method: 'POST',
                 uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/role`,
                 auth: auth,
                 body: policyRepr,
