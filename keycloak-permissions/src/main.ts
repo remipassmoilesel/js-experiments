@@ -15,4 +15,4 @@ const realmName = `${increment}`;
 const clientName = `libraries`;
 
 const kf = new KeycloakFlooder(authSettings);
-kf.flood(realmName, clientName, 5, 5);
+kf.flood(realmName, clientName, 2, 2);

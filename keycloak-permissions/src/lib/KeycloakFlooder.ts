@@ -1,4 +1,4 @@
-import {run, wait} from "f-promise";
+import { run, wait } from "f-promise";
 import * as _ from "lodash";
 import { IAuthSettings } from "./AuthSettings";
 import { KeycloakHelper } from "./KeyloakHelper";
@@ -77,68 +77,67 @@ export class KeycloakFlooder {
     }
 
     private mapRealmRolesWithUser(userId: string, roles: string[]): Promise<any> {
-        return this.helper.getUser(this.realmName, userId).then((userInfo) => {
 
-            const promises: any[] = [];
+        const user = wait(this.helper.getUser(this.realmName, userId));
+        const userUID: string = (user.id as any);
 
-            _.forEach(roles, (role: string) => {
-                promises.push(this.helper.bindRealmRoleToUser(
-                    this.realmName,
-                    userId,
-                    role,
-                ));
-            });
-
-            return Promise.all(promises);
+        _.forEach(roles, (role: string) => {
+            wait(this.helper.bindRealmRoleToUser(
+                this.realmName,
+                userUID,
+                role,
+            ));
         });
+
+        return Promise.resolve();
     }
 
-    private mapClientRoles() {
+    private mapClientRoles(): Promise<any> {
 
         log("Start client roles mapping");
 
         const { userMappings, adminMappings } = this.prepareMappings();
 
-        return this.helper.getClient(this.realmName, this.clientName).then((clientsInfo) => {
-            const clientUID: string = clientsInfo.id as any;
+        const clientInfos = wait(this.helper.getClient(this.realmName, this.clientName));
+        const clientUID: string = clientInfos.id as any;
 
-            const promises: Array<Promise<any>> = [];
-            _.forEach(userMappings, (roles, user) => {
-                promises.push(this.mapClientRolesWithUser(clientUID, user, roles));
-            });
-
-            _.forEach(adminMappings, (roles, user) => {
-                promises.push(this.mapClientRolesWithUser(clientUID, user, roles));
-            });
-
-            return Promise.all(promises);
-
+        _.forEach(userMappings, (roles, user) => {
+            wait(this.mapClientRolesWithUser(clientUID, user, roles));
         });
+
+        _.forEach(adminMappings, (roles, user) => {
+            wait(this.mapClientRolesWithUser(clientUID, user, roles));
+        });
+
+        return Promise.resolve();
 
     }
 
     private mapClientRolesWithUser(clientUID: string, userId: string, roles: string[]): Promise<any> {
-        return this.helper.getUser(this.realmName, userId).then((userInfo) => {
 
-            const promises: any[] = [];
+        const user = wait(this.helper.getUser(this.realmName, userId));
+        const userUID: string = (user.id as any);
 
-            _.forEach(roles, (role: string) => {
+        _.forEach(roles, (role: string) => {
 
-                promises.push(this.helper.bindClientRoleToUser(
-                    this.realmName,
-                    clientUID,
-                    userId,
-                    role,
-                ));
-            });
+            log(`Mapping role with user: `, { role, user: userId });
 
-            return Promise.all(promises);
+            wait(this.helper.bindClientRoleToUser(
+                this.realmName,
+                clientUID,
+                userUID,
+                role,
+            ));
         });
+
+        return Promise.resolve();
     }
 
     private prepareMappings(): any {
-        const userMappings: any[] = [];
-        const adminMappings: any[] = [];
+
+        const userMappings: any = {};
+        const adminMappings: any = {};
+
         _.forEach(this.users, (user: string) => {
 
             // user can use ~~ 50 lib
@@ -169,10 +168,11 @@ export class KeycloakFlooder {
 
         log("Start users creation");
 
-        const promises: Array<Promise<any>> = [];
-
         _.forEach(this.users, (user: string) => {
-            promises.push(this.helper.createUser(this.realmName, {
+
+            log("Creating user: ", user);
+
+            wait(this.helper.createUser(this.realmName, {
                 enabled: true,
                 attributes: {},
                 username: user,
@@ -180,16 +180,18 @@ export class KeycloakFlooder {
             }));
         });
 
-        return Promise.all(promises);
+        return Promise.resolve();
     }
 
-    private createPermissions() {
+    private createPermissions(): Promise<any> {
 
         log("Start permissions creation");
 
-        const promises: Array<Promise<any>> = [];
         _.forEach(this.resources, (res) => {
-            promises.push(this.helper.createPermissionFor(
+
+            log("Creating permission for: ", res);
+
+            wait(this.helper.createPermissionFor(
                 this.realmName,
                 this.clientName,
                 this.getAdminPermissionName(res.name),
@@ -197,7 +199,7 @@ export class KeycloakFlooder {
                 this.getAdminPolicyName(res.name),
             ));
 
-            promises.push(this.helper.createPermissionFor(
+            wait(this.helper.createPermissionFor(
                 this.realmName,
                 this.clientName,
                 this.getAuthorizedUserPermissionName(res.name),
@@ -207,17 +209,18 @@ export class KeycloakFlooder {
 
         });
 
-        return Promise.all(promises);
+        return Promise.resolve();
     }
 
-    private createPolicies() {
+    private createPolicies(): Promise<any> {
 
         log("Start policies creation");
 
-        const promises: Array<Promise<any>> = [];
         _.forEach(this.resources, (res) => {
 
-            promises.push(this.helper.createPolicyFor(
+            log("Creating policy for: ", res);
+
+            wait(this.helper.createPolicyFor(
                 this.realmName,
                 this.getAdminPolicyName(res.name),
                 this.clientName,
@@ -225,7 +228,7 @@ export class KeycloakFlooder {
                 this.getAdminRoleName(res.name)),
             );
 
-            promises.push(this.helper.createPolicyFor(
+            wait(this.helper.createPolicyFor(
                 this.realmName,
                 this.getAuthorizedUserPolicyName(res.name),
                 this.clientName,
@@ -235,39 +238,37 @@ export class KeycloakFlooder {
 
         });
 
-        return Promise.all(promises);
+        return Promise.resolve();
 
     }
 
-    private createClientRoles() {
+    private createClientRoles(): Promise<any> {
 
         log("Start client roles creation");
 
-        return this.helper.getClient(this.realmName, this.clientName)
-            .then((clientInfo) => {
+        const clientInfo = wait(this.helper.getClient(this.realmName, this.clientName));
+        const clientUid: string = clientInfo.id as any;
 
-                const clientUid: string = clientInfo.id as any;
-                const promises: Array<Promise<any>> = [];
+        _.forEach(this.resources, (res) => {
 
-                _.forEach(this.resources, (res) => {
+            log("Creating client role for: ", res);
 
-                    promises.push(this.helper.createClientRole(this.realmName, clientUid, {
-                        name: this.getAdminRoleName(res.name),
-                        scopeParamRequired: "",
-                    }));
+            wait(this.helper.createClientRole(this.realmName, clientUid, {
+                name: this.getAdminRoleName(res.name),
+                scopeParamRequired: "",
+            }));
 
-                    promises.push(this.helper.createClientRole(this.realmName, clientUid, {
-                        name: this.getAuthorizedUserRoleName(res.name),
-                        scopeParamRequired: "",
-                    }));
+            wait(this.helper.createClientRole(this.realmName, clientUid, {
+                name: this.getAuthorizedUserRoleName(res.name),
+                scopeParamRequired: "",
+            }));
 
-                });
+        });
 
-                return Promise.all(promises);
-            });
+        return Promise.resolve();
     }
 
-    private createRealmRoles(): Promise<any>{
+    private createRealmRoles(): Promise<any> {
 
         log("Start realm roles creation");
 
@@ -299,14 +300,14 @@ export class KeycloakFlooder {
 
         _.forEach(this.resources, (res: IResourceToCreate) => {
 
-                log("Creating resource: ", res);
+            log("Creating resource: ", res);
 
-                wait(this.helper.createResource(this.realmName, clientUID, {
-                    name: res.name,
-                    scopes: [],
-                    uri: res.uri,
-                }));
-            });
+            wait(this.helper.createResource(this.realmName, clientUID, {
+                name: res.name,
+                scopes: [],
+                uri: res.uri,
+            }));
+        });
 
         return Promise.resolve();
 

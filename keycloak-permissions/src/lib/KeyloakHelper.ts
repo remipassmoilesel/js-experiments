@@ -267,14 +267,14 @@ export class KeycloakHelper {
     }
 
 
-    public bindRealmRoleToUser(realmName: string, userId: string, realmRoleName: string) {
+    public bindRealmRoleToUser(realmName: string, userUID: string, realmRoleName: string) {
 
         return this.getAuth().then((auth) => {
             return this.getRealmRole(realmName, realmRoleName).then((role) => {
 
                 const options = {
                     method: "POST",
-                    uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users/${userId}/role-mappings/realm`,
+                    uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users/${userUID}/role-mappings/realm`,
                     auth,
                     body: [role],
                     json: true,
@@ -286,7 +286,7 @@ export class KeycloakHelper {
 
     }
 
-    public bindClientRoleToUser(realmName: string, clientUID, userId: string, clientRoleName: string) {
+    public bindClientRoleToUser(realmName: string, clientUID, userUID: string, clientRoleName: string) {
 
         return this.getAuth().then((auth) => {
             return this.getClientRole(realmName, clientUID, clientRoleName).then((role) => {
@@ -294,7 +294,7 @@ export class KeycloakHelper {
                 const options = {
                     method: "POST",
                     uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}`
-                    + `/users/${userId}/role-mappings/clients/${clientUID}`,
+                    + `/users/${userUID}/role-mappings/clients/${clientUID}`,
                     auth,
                     body: [role],
                     json: true,
