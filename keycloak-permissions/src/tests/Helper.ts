@@ -53,19 +53,18 @@ export class Helper {
             });
     }
 
-    public createResource(authSettings: AuthSettings, payload: ResourceRepresentation) {
+    public createResource(authSettings: AuthSettings, realmName: string, clientId: string,
+                          resource: ResourceRepresentation) {
 
         return this.getAuth(authSettings).then((auth) => {
 
             const options = {
                 method: 'POST',
-                uri: authSettings.baseUrl,
+                uri: `${authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientId}/authz/resource-server/resource`,
                 auth: auth,
-                body: payload,
+                body: resource,
                 json: true
             };
-
-            console.log(options);
 
             return request(options);
         });

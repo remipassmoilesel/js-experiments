@@ -1,5 +1,6 @@
 import { Helper } from './Helper';
 import * as chai from 'chai';
+import * as _ from 'lodash';
 import 'mocha';
 import { AuthSettings } from '../lib/AuthSettings';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
@@ -11,9 +12,9 @@ describe('Keycloak test', () => {
     const helper = new Helper();
     const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
     const realmName = 'master';
-    const client = 'library-a-client';
+    const clientName = 'library-a-client';
 
-    const defaultSettings: AuthSettings = {
+    const authSettings: AuthSettings = {
         baseUrl: keycloakBaseUrl,
         username: 'keycloak',
         password: 'keycloak',
@@ -22,13 +23,36 @@ describe('Keycloak test', () => {
     };
 
     it('List clients should success', () => {
-        return helper.getClients(defaultSettings, realmName).then((data: ClientRepresentation[]) => {
+        return helper.getClients(authSettings, realmName).then((data: ClientRepresentation[]) => {
             assert.isTrue(data.length > 2);
         });
     });
 
-    it('Create resource should success', () => {
-        // /admin/realms/master/clients/6ce026c8-a0d2-4d97-b6e3-59275a9ce918/authz/resource-server/resource
+    it.only('Create resource should success', () => {
+        return helper.getClients(authSettings, realmName)
+            .then((clients: ClientRepresentation[]) => {
+
+                return _.filter(clients, (cl: ClientRepresentation) => {
+                    return cl.clientId == clientName;
+                })[0];
+
+            })
+            .then((targetClient: ClientRepresentation) => {
+
+                const promises: Promise<any>[] = [];
+                for (let i = 0; i < 10; i++) {
+                    const resId = `resource-${i}-${new Date().toISOString()}`;
+                    const p = helper.createResource(authSettings, realmName, targetClient.id, {
+                        name: resId,
+                        scopes: [],
+                        uri: `uri:${resId}`,
+                    });
+
+                    promises.push(p);
+                }
+
+                return Promise.all(promises);
+            });
     });
 
     it.skip('evaluate should success', () => {
