@@ -2,6 +2,7 @@ import * as request from 'request-promise';
 import { AuthSettings } from '../lib/AuthSettings';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
+import * as _ from 'lodash';
 import { RoleRepresentation } from '../lib/RealmRoleRepresentation';
 import { PolicyRepresentation } from '../lib/PolicyRepresentation';
 
@@ -30,7 +31,7 @@ export class Helper {
         });
     }
 
-    public getClientInfos(realmName: string, clientId: string): Promise<ClientRepresentation[]> {
+    public getInformationsForClients(realmName: string, clientId: string): Promise<ClientRepresentation[]> {
         return kca(this.authSettings).then((client) => {
             const options = { clientId };
             return client.clients.find(realmName, options);
@@ -45,12 +46,35 @@ export class Helper {
             });
     }
 
-    // public getRealmRoleInfos(adminRoleName: string) {
-    //     return kca(this.authSettings)
-    //         .then((client) => {
-    //             return client.clients.roles.create(realmName, clientUID, roleRepr);
-    //         });
-    // }
+    public getInformationsForRealmRoles(realmName: string, clientUID: string): Promise<RoleRepresentation[]> {
+        return kca(this.authSettings)
+            .then((client) => {
+                return client.realms.roles.find(realmName);
+            });
+    }
+
+    public getRealmRoleInfos(realmName: string, clientUID: string, roleName: string): Promise<RoleRepresentation> {
+        return this.getInformationsForRealmRoles(realmName, clientUID).then((roles) => {
+            return _.filter(roles, (r) => {
+                return r.name === roleName;
+            })[0];
+        });
+    }
+
+    public getInformationsForClientsRoles(realmName: string, clientUID: string): Promise<RoleRepresentation[]> {
+        return kca(this.authSettings)
+            .then((client) => {
+                return client.clients.roles.find(realmName, clientUID);
+            });
+    }
+
+    public getClientRoleInfos(realmName: string, clientUID: any, roleName: string) {
+        return this.getInformationsForClientsRoles(realmName, clientUID).then((roles) => {
+            return _.filter(roles, (r) => {
+                return r.name === roleName;
+            })[0];
+        });
+    }
 
     public createPolicy(realmName: string, clientUID: string,
                         policyRepr: PolicyRepresentation) {

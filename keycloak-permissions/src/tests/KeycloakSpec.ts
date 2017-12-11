@@ -56,11 +56,11 @@ describe('Keycloak test', () => {
     });
 
     it('Get client informations from clientId should success', () => {
-        return helper.getClientInfos(realmName, clientName);
+        return helper.getInformationsForClients(realmName, clientName);
     });
 
     it('Create a client role should success', () => {
-        return helper.getClientInfos(realmName, clientName)
+        return helper.getInformationsForClients(realmName, clientName)
             .then((clientsInfo) => {
                 const clientUid: string = clientsInfo[0].id as any;
                 const promises: Promise<any>[] = [];
@@ -77,26 +77,83 @@ describe('Keycloak test', () => {
             });
     });
 
-    // it('Get client role informations should success', () => {
-    //     return helper.getRealmRoleInfos(adminRoleName);
-    // });
+    it('Get realm role informations should success', () => {
+        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+
+            const clientUID: string = clientsInfo[0].id as any;
+            const promises: Promise<any>[] = [];
+            promises.push(helper.getInformationsForRealmRoles(realmName, clientUID).then((rolesInfos) => {
+                assert.isTrue(rolesInfos.length > 1);
+            }));
+            promises.push(helper.getRealmRoleInfos(realmName, clientUID, adminRoleName).then((rolesInfo) => {
+                assert.isDefined(rolesInfo);
+            }));
+
+            return Promise.all(promises);
+        });
+
+    });
+
+    it('Get client role informations should success', () => {
+        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+
+            const clientUID: string = clientsInfo[0].id as any;
+            const promises: Promise<any>[] = [];
+            promises.push(helper.getInformationsForClientsRoles(realmName, clientUID).then((rolesInfos) => {
+                assert.isTrue(rolesInfos.length > 1);
+            }));
+            promises.push(helper.getClientRoleInfos(realmName, clientUID, adminRoleName).then((rolesInfo) => {
+                assert.isDefined(rolesInfo);
+            }));
+
+            return Promise.all(promises);
+        });
+
+    });
 
     it('Create policies should success', () => {
 
-        // return helper.getClientInfos(authSettings, realmName, clientName)
-        //     .then((clientsInfo)=>{
-        //         // get client id
-        //         return clientsInfo[0].id as any;
-        //     })
-        //     .then((clientId: string)=>{
-        //         helper.getRolesInfo()
-        //     })
-        //     .then(()=>{
-        //         return helper.createPolicy(authSettings, realmName, clientUID, {
+        return helper.getInformationsForClients(realmName, clientName)
+            .then((clientsInfo) => {
+                // find client id
+                return { clientUID: clientsInfo[0].id as any };
+            })
+            .then((data: any) => {
+                // find admin realm role id
+                return helper.getRealmRoleInfos(realmName, data.clientUID, adminRoleName).then((roleInfos) => {
+                    data.realmAdminRoleId = roleInfos.id;
+                    return data;
+                });
+            })
+            .then((data: any) => {
+                // find user realm role id
+                return helper.getRealmRoleInfos(realmName, data.clientUID, authorizedUserRoleName).then((roleInfos) => {
+                    data.realmAuthorizedUserRoleId = roleInfos.id;
+                    return data;
+                });
+            })
+            .then((data: any) => {
+                // find admin client role id
+                return helper.getClientRoleInfos(realmName, data.clientUID, adminRoleName).then((roleInfos) => {
+                    data.realmAdminRoleId = roleInfos.id;
+                    return data;
+                });
+            })
+            .then((data: any) => {
+                // find user realm role id
+                return helper.getRealmRoleInfos(realmName, data.clientUID, authorizedUserRoleName).then((roleInfos) => {
+                    data.realmAuthorizedUserRoleId = roleInfos.id;
+                    return data;
+                });
+            });
+        // .then((data) => {
+        //     { clientUID: '6b2f4059-c5c8-4332-a6c5-6c3fa37342a7',
+        //         adminRoleId: '012b2567-e1e0-44a2-bca9-5d4c77df2155',
+        //         authorizedUserRoleId: '92bfa891-5cdd-4289-b8e7-aa7bff21ad22' }
         //
-        //         });
-        //     })
-        //     ;
+        //     console.log(data);
+        // });
+
     });
 
     // it('Create resource should success', () => {
