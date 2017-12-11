@@ -2,21 +2,12 @@ import { Helper } from './Helper';
 import * as chai from 'chai';
 import 'mocha';
 import { AuthSettings } from '../lib/AuthSettings';
-import { ClientRepresentation } from '../lib/ClientRepresentation';
 
 const assert = chai.assert;
 
 describe('Keycloak test', () => {
 
-    const helper = new Helper();
     const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
-
-    const increment = new Date().toISOString().replace(/[-:.]+/ig, '');
-    const realmName = `${increment}`;
-    const clientName = `000-library-client-a`;
-
-    const adminRoleName = 'admin';
-
     const authSettings: AuthSettings = {
         baseUrl: keycloakBaseUrl,
         username: 'keycloak',
@@ -25,12 +16,22 @@ describe('Keycloak test', () => {
         client_id: 'admin-cli'
     };
 
+
+    const helper = new Helper(authSettings);
+
+    const increment = new Date().toISOString().replace(/[-:.]+/ig, '');
+    const realmName = `${increment}`;
+    const clientName = `000-library-client-a`;
+
+    const adminRoleName = 'admin';
+    const authorizedUserRoleName = 'authorized_user';
+
     it('Create a realm should success', () => {
-        return helper.createRealm(authSettings, realmName);
+        return helper.createRealm(realmName);
     });
 
     it('Create a client should success', () => {
-        return helper.createClient(authSettings, realmName, {
+        return helper.createClient(realmName, {
             clientId: clientName,
             name: clientName,
             description: `Description of ${clientName}`,
@@ -40,33 +41,62 @@ describe('Keycloak test', () => {
         });
     });
 
-    it('Create a realm role should success', () => {
-        return helper.createRealmRole(authSettings, realmName, {
+    it('Create realm roles should success', () => {
+        const promises: Promise<any>[] = [];
+        promises.push(helper.createRealmRole(realmName, {
             name: adminRoleName,
             scopeParamRequired: ''
-        });
+        }));
+        promises.push(helper.createRealmRole(realmName, {
+            name: authorizedUserRoleName,
+            scopeParamRequired: ''
+        }));
+
+        return Promise.all(promises);
     });
 
     it('Get client informations from clientId should success', () => {
-        return helper.getClientInfos(authSettings, realmName, clientName);
+        return helper.getClientInfos(realmName, clientName);
     });
 
     it('Create a client role should success', () => {
-        return helper.getClientInfos(authSettings, realmName, clientName)
+        return helper.getClientInfos(realmName, clientName)
             .then((clientsInfo) => {
                 const clientUid: string = clientsInfo[0].id as any;
-                return helper.createClientRole(authSettings, realmName, clientUid, {
+                const promises: Promise<any>[] = [];
+                promises.push(helper.createClientRole(realmName, clientUid, {
                     name: adminRoleName,
                     scopeParamRequired: ''
-                });
+                }));
+                promises.push(helper.createClientRole(realmName, clientUid, {
+                    name: authorizedUserRoleName,
+                    scopeParamRequired: ''
+                }));
+
+                return Promise.all(promises);
             });
     });
 
+    // it('Get client role informations should success', () => {
+    //     return helper.getRealmRoleInfos(adminRoleName);
+    // });
 
-    it.skip('List clients should success', () => {
-        return helper.getClients(authSettings, realmName).then((data: ClientRepresentation[]) => {
-            assert.isTrue(data.length > 2);
-        });
+    it('Create policies should success', () => {
+
+        // return helper.getClientInfos(authSettings, realmName, clientName)
+        //     .then((clientsInfo)=>{
+        //         // get client id
+        //         return clientsInfo[0].id as any;
+        //     })
+        //     .then((clientId: string)=>{
+        //         helper.getRolesInfo()
+        //     })
+        //     .then(()=>{
+        //         return helper.createPolicy(authSettings, realmName, clientUID, {
+        //
+        //         });
+        //     })
+        //     ;
     });
 
     // it('Create resource should success', () => {

@@ -1,49 +1,74 @@
 import * as request from 'request-promise';
 import { AuthSettings } from '../lib/AuthSettings';
-import { ResourceRepresentation } from '../lib/ResourceRepresentation';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
 import { RoleRepresentation } from '../lib/RealmRoleRepresentation';
+import { PolicyRepresentation } from '../lib/PolicyRepresentation';
 
 export class Helper {
+    private authSettings: AuthSettings;
 
-    public createRealm(settings: AuthSettings, realmName: string): Promise<any> {
-        return kca(settings).then((client) => {
+    constructor(settings: AuthSettings) {
+        this.authSettings = settings;
+    }
+
+    public createRealm(realmName: string): Promise<any> {
+        return kca(this.authSettings).then((client) => {
             return client.realms.create({ realm: realmName });
         });
     }
 
-    public createClient(settings: AuthSettings, realmName: string, clientRepr: ClientRepresentation): Promise<any> {
-        return kca(settings).then((client) => {
+    public createClient(realmName: string, clientRepr: ClientRepresentation): Promise<any> {
+        return kca(this.authSettings).then((client) => {
             return client.clients.create(realmName, clientRepr);
         });
     }
 
-    public createRealmRole(settings: AuthSettings, realmName: string, roleRepr: RoleRepresentation): Promise<any> {
-        return kca(settings).then((client) => {
+    public createRealmRole(realmName: string, roleRepr: RoleRepresentation): Promise<any> {
+        return kca(this.authSettings).then((client) => {
             return client.realms.roles.create(realmName, roleRepr);
         });
     }
 
-    public getClientInfos(settings: AuthSettings, realmName: string, clientId: string): Promise<ClientRepresentation[]> {
-        return kca(settings).then((client) => {
+    public getClientInfos(realmName: string, clientId: string): Promise<ClientRepresentation[]> {
+        return kca(this.authSettings).then((client) => {
             const options = { clientId };
             return client.clients.find(realmName, options);
         });
     }
 
-    public createClientRole(authSettings: AuthSettings, realmName: string, clientUID: string,
+    public createClientRole(realmName: string, clientUID: string,
                             roleRepr: RoleRepresentation) {
-        return kca(authSettings)
+        return kca(this.authSettings)
             .then((client) => {
                 return client.clients.roles.create(realmName, clientUID, roleRepr);
             });
     }
 
-    public getRealms(settings: AuthSettings) {
-        return this.getAuth(settings).then((auth) => {
+    // public getRealmRoleInfos(adminRoleName: string) {
+    //     return kca(this.authSettings)
+    //         .then((client) => {
+    //             return client.clients.roles.create(realmName, clientUID, roleRepr);
+    //         });
+    // }
+
+    public createPolicy(realmName: string, clientUID: string,
+                        policyRepr: PolicyRepresentation) {
+        return this.getAuth().then((auth) => {
             const options = {
-                uri: `${settings.baseUrl}/admin/realms`,
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/role`,
+                auth: auth,
+                body: policyRepr,
+                json: true
+            };
+            return request(options);
+        });
+    }
+
+    public getRealms() {
+        return this.getAuth().then((auth) => {
+            const options = {
+                uri: `${this.authSettings.baseUrl}/admin/realms`,
                 auth: auth,
                 json: true
             };
@@ -51,46 +76,15 @@ export class Helper {
         });
     }
 
-    public getClients(authSettings: AuthSettings, realmName: string): Promise<ClientRepresentation[]> {
-        return this.getAuth(authSettings)
-            .then((auth) => {
-                const options = {
-                    method: 'GET',
-                    uri: `${authSettings.baseUrl}/admin/realms/${realmName}/clients`,
-                    auth: auth,
-                    json: true
-                };
-
-                return request(options);
-            });
-    }
-
-    public createResource(authSettings: AuthSettings, realmName: string, clientId: string,
-                          resource: ResourceRepresentation) {
-
-        return this.getAuth(authSettings).then((auth) => {
-
-            const options = {
-                method: 'POST',
-                uri: `${authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientId}/authz/resource-server/resource`,
-                auth: auth,
-                body: resource,
-                json: true
-            };
-
-            return request(options);
-        });
-
-    }
 
     // TODO: finalize
-    public evaluate(settings: AuthSettings, payload) {
+    public evaluate(payload) {
 
-        return this.getAuth(settings).then((auth) => {
+        return this.getAuth().then((auth) => {
 
             const options = {
                 method: 'POST',
-                uri: `${settings.baseUrl}/admin/realms/library-poc/clients/e47e0f0d-2932-4d7f-8533-1f7eac9305cf/authz/resource-server/policy/evaluate`,
+                uri: `${this.authSettings.baseUrl}/admin/realms/library-poc/clients/e47e0f0d-2932-4d7f-8533-1f7eac9305cf/authz/resource-server/policy/evaluate`,
                 auth: auth,
                 body: payload,
                 json: true
@@ -103,12 +97,12 @@ export class Helper {
     }
 
 
-    private getToken(settings: AuthSettings) {
+    private getToken() {
 
         const options = {
             method: 'POST',
-            uri: `${settings.baseUrl}/realms/master/protocol/openid-connect/token`,
-            form: settings,
+            uri: `${this.authSettings.baseUrl}/realms/master/protocol/openid-connect/token`,
+            form: this.authSettings,
             json: true
         };
 
@@ -117,9 +111,8 @@ export class Helper {
         });
     }
 
-    private getAuth(settings: AuthSettings) {
-        return this.getToken(settings).then((accessToken) => {
-            // console.log(arguments);
+    private getAuth() {
+        return this.getToken().then((accessToken) => {
             return {
                 bearer: accessToken
             };

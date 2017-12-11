@@ -8,8 +8,10 @@ Deux types d'utilisateurs:
 - Administrateurs,
 + Permission spéciales (collaborateurs, etc ...) 
 
-## Composants
+## Etapes
 
-- Un realm (par client/entreprise ? Global ?)
-- Un client par serveur de ressource
-- Un role de realm
+- Créer un realm
+- Créer un client
+- Créer un role de realm
+- Créer un role de client
+- Créer une politique
