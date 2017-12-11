@@ -2,30 +2,15 @@ import * as request from 'request-promise';
 import { AuthSettings } from '../lib/AuthSettings';
 import { ResourceRepresentation } from '../lib/ResourceRepresentation';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
+import * as kca from 'keycloak-admin-client';
 
 export class Helper {
 
-    public getToken(settings: AuthSettings) {
-
-        const options = {
-            method: 'POST',
-            uri: `${settings.baseUrl}/realms/master/protocol/openid-connect/token`,
-            form: settings,
-            json: true
-        };
-
-        return request(options).then((data) => {
-            return data.access_token;
-        });
-    }
-
-    public getAuth(settings: AuthSettings) {
-        return this.getToken(settings).then((accessToken) => {
-            // console.log(arguments);
-            return {
-                bearer: accessToken
-            };
-        });
+    public createRealm(settings: AuthSettings, realmName: string) {
+        return kca(settings)
+            .then((client) => {
+                return client.realms.create({ realm: realmName });
+            });
     }
 
     public getRealms(settings: AuthSettings) {
@@ -88,6 +73,29 @@ export class Helper {
 
             return request(options);
         });
+    }
 
+
+    private getToken(settings: AuthSettings) {
+
+        const options = {
+            method: 'POST',
+            uri: `${settings.baseUrl}/realms/master/protocol/openid-connect/token`,
+            form: settings,
+            json: true
+        };
+
+        return request(options).then((data) => {
+            return data.access_token;
+        });
+    }
+
+    private getAuth(settings: AuthSettings) {
+        return this.getToken(settings).then((accessToken) => {
+            // console.log(arguments);
+            return {
+                bearer: accessToken
+            };
+        });
     }
 }

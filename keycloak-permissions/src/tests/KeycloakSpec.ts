@@ -22,13 +22,19 @@ describe('Keycloak test', () => {
         client_id: 'admin-cli'
     };
 
+    it.only('Create a realm should success', () => {
+        return helper.createRealm(authSettings, 'realm1').then(function () {
+            console.log(arguments);
+        });
+    });
+
     it('List clients should success', () => {
         return helper.getClients(authSettings, realmName).then((data: ClientRepresentation[]) => {
             assert.isTrue(data.length > 2);
         });
     });
 
-    it.only('Create resource should success', () => {
+    it('Create resource should success', () => {
         return helper.getClients(authSettings, realmName)
             .then((clients: ClientRepresentation[]) => {
 
@@ -54,6 +60,7 @@ describe('Keycloak test', () => {
                 return Promise.all(promises);
             });
     });
+
 
     it.skip('evaluate should success', () => {
 
