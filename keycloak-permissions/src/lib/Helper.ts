@@ -105,15 +105,40 @@ export class Helper {
         });
     }
 
-    public getRealms() {
-        return this.getAuth().then((auth) => {
-            const options = {
-                uri: `${this.authSettings.baseUrl}/admin/realms`,
-                auth: auth,
-                json: true
-            };
-            return request(options);
-        });
+    public createPolicyFor(realmName: string, policyName: string, clientName: string, realmRole: string, clientRole: string) {
+
+        return this.getInformationsForClients(realmName, clientName)
+            .then((clientsInfo) => {
+                // find client id
+                return { clientUID: clientsInfo[0].id as any };
+            })
+            .then((data: any) => {
+                // find realm role id
+                return this.getRealmRoleInfos(realmName, data.clientUID, realmRole).then((roleInfos) => {
+                    data.realmRoleId = roleInfos.id;
+                    return data;
+                });
+            })
+            .then((data: any) => {
+                // find client role id
+                return this.getClientRoleInfos(realmName, data.clientUID, clientRole).then((roleInfos) => {
+                    data.clientRoleId = roleInfos.id;
+                    return data;
+                });
+            })
+            .then((data) => {
+
+                return this.createPolicy(realmName, data.clientUID,
+                    {
+                        type: 'role',
+                        logic: 'POSITIVE',
+                        name: policyName,
+                        roles: [
+                            { id: data.realmRoleId, required: true },
+                            { id: data.clientRoleId, required: true },
+                        ],
+                    });
+            });
     }
 
 

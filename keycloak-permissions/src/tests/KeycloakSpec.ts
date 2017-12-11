@@ -158,99 +158,16 @@ describe('Keycloak test', () => {
 
     it('Create policies should success', () => {
 
-        return helper.getInformationsForClients(realmName, clientName)
-            .then((clientsInfo) => {
-                // find client id
-                return { clientUID: clientsInfo[0].id as any };
-            })
-            .then((data: any) => {
-                // find admin realm role id
-                return helper.getRealmRoleInfos(realmName, data.clientUID, adminRoleName).then((roleInfos) => {
-                    data.realmAdminRoleId = roleInfos.id;
-                    return data;
-                });
-            })
-            .then((data: any) => {
-                // find user realm role id
-                return helper.getRealmRoleInfos(realmName, data.clientUID, authorizedUserRoleName).then((roleInfos) => {
-                    data.realmAuthorizedUserRoleId = roleInfos.id;
-                    return data;
-                });
-            })
-            .then((data: any) => {
-                // find admin client role id
-                return helper.getClientRoleInfos(realmName, data.clientUID, adminRoleName).then((roleInfos) => {
-                    data.clientAdminRoleId = roleInfos.id;
-                    return data;
-                });
-            })
-            .then((data: any) => {
-                // find user realm role id
-                return helper.getRealmRoleInfos(realmName, data.clientUID, authorizedUserRoleName).then((roleInfos) => {
-                    data.clientAuthorizedUserRoleId = roleInfos.id;
-                    return data;
-                });
-            })
-            .then((data) => {
+        const promises: Promise<any>[] = [];
+        _.forEach(resources, (res) => {
+            promises.push(helper.createPolicyFor(realmName, `Admins can administrate ${res}`,
+                clientName, getAdminRoleName(res), getAdminRoleName(res)));
 
-                console.log(data);
+            promises.push(helper.createPolicyFor(realmName, `Users can use ${res}`,
+                clientName, getAuthorizedUserRoleName(res), getAuthorizedUserRoleName(res)));
+        });
 
-                // create a policy
-                const promises: Promise<any>[] = [];
-                promises.push(helper.createPolicy(realmName, data.clientUID,
-                    {
-                        type: 'role',
-                        logic: 'POSITIVE',
-                        name: 'Admins can administrate ' + clientName,
-                        roles: [
-                            { id: data.realmAdminRoleId, required: true },
-                            { id: data.clientAdminRoleId, required: true },
-                        ],
-                    }
-                ));
-                promises.push(helper.createPolicy(realmName, data.clientUID,
-                    {
-                        type: 'role',
-                        logic: 'POSITIVE',
-                        name: 'Authorized users can use ' + clientName,
-                        roles: [
-                            { id: data.realmAuthorizedUserRoleId, required: true },
-                            { id: data.clientAuthorizedUserRoleId, required: true },
-                        ],
-                    }
-                ));
-
-                return Promise.all(promises);
-
-            });
     });
-
-    // it('Create resource should success', () => {
-    //     return helper.getClients(authSettings, realmName)
-    //         .then((clients: ClientRepresentation[]) => {
-    //
-    //             return _.filter(clients, (cl: ClientRepresentation) => {
-    //                 return cl.clientId == clientName;
-    //             })[0];
-    //
-    //         })
-    //         .then((targetClient: ClientRepresentation) => {
-    //
-    //             const promises: Promise<any>[] = [];
-    //             for (let i = 0; i < 10; i++) {
-    //                 const resId = `resource-${i}-${new Date().toISOString()}`;
-    //                 const p = helper.createResource(authSettings, realmName, targetClient.id, {
-    //                     name: resId,
-    //                     scopes: [],
-    //                     uri: `uri:${resId}`,
-    //                 });
-    //
-    //                 promises.push(p);
-    //             }
-    //
-    //             return Promise.all(promises);
-    //         });
-    // });
 
 
     it.skip('evaluate should success', () => {
