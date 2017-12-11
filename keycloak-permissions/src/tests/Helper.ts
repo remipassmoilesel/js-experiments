@@ -13,17 +13,10 @@ export class Helper {
             });
     }
 
-    public createClient(settings: AuthSettings, realmName: string, clientName: string) {
+    public createClient(settings: AuthSettings, realmName: string, clientRepr: ClientRepresentation) {
         return kca(settings)
             .then((client) => {
-
-                const newClient = {
-                    clientId: clientName,
-                    description: `Client ${clientName}`,
-                    bearerOnly: true
-                };
-
-                return client.clients.create(realmName, newClient);
+                return client.clients.create(realmName, clientRepr);
             });
     }
 

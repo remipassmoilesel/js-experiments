@@ -11,8 +11,10 @@ describe('Keycloak test', () => {
 
     const helper = new Helper();
     const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
-    const realmName = 'realm-a';
-    const clientName = 'library-a-client';
+
+    const increment = 3;
+    const realmName = `realm-a-${increment}`;
+    const clientName = `library-a-client-${increment}`;
 
     const authSettings: AuthSettings = {
         baseUrl: keycloakBaseUrl,
@@ -22,13 +24,16 @@ describe('Keycloak test', () => {
         client_id: 'admin-cli'
     };
 
-    it('Create a realm should success', () => {
+    it.only('Create a realm should success', () => {
         return helper.createRealm(authSettings, realmName);
     });
 
-    it('Create a client should success', () => {
-        return helper.createClient(authSettings, realmName, clientName).then(function () {
-            console.log(arguments);
+    it.only('Create a client should success', () => {
+        return helper.createClient(authSettings, realmName, {
+            clientId: clientName,
+            name: clientName,
+            description: `Description of ${clientName}`,
+            redirectUris: ['http://localhost']
         });
     });
 
@@ -38,32 +43,32 @@ describe('Keycloak test', () => {
         });
     });
 
-    it('Create resource should success', () => {
-        return helper.getClients(authSettings, realmName)
-            .then((clients: ClientRepresentation[]) => {
-
-                return _.filter(clients, (cl: ClientRepresentation) => {
-                    return cl.clientId == clientName;
-                })[0];
-
-            })
-            .then((targetClient: ClientRepresentation) => {
-
-                const promises: Promise<any>[] = [];
-                for (let i = 0; i < 10; i++) {
-                    const resId = `resource-${i}-${new Date().toISOString()}`;
-                    const p = helper.createResource(authSettings, realmName, targetClient.id, {
-                        name: resId,
-                        scopes: [],
-                        uri: `uri:${resId}`,
-                    });
-
-                    promises.push(p);
-                }
-
-                return Promise.all(promises);
-            });
-    });
+    // it('Create resource should success', () => {
+    //     return helper.getClients(authSettings, realmName)
+    //         .then((clients: ClientRepresentation[]) => {
+    //
+    //             return _.filter(clients, (cl: ClientRepresentation) => {
+    //                 return cl.clientId == clientName;
+    //             })[0];
+    //
+    //         })
+    //         .then((targetClient: ClientRepresentation) => {
+    //
+    //             const promises: Promise<any>[] = [];
+    //             for (let i = 0; i < 10; i++) {
+    //                 const resId = `resource-${i}-${new Date().toISOString()}`;
+    //                 const p = helper.createResource(authSettings, realmName, targetClient.id, {
+    //                     name: resId,
+    //                     scopes: [],
+    //                     uri: `uri:${resId}`,
+    //                 });
+    //
+    //                 promises.push(p);
+    //             }
+    //
+    //             return Promise.all(promises);
+    //         });
+    // });
 
 
     it.skip('evaluate should success', () => {
