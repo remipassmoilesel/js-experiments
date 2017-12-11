@@ -4,4 +4,6 @@ export interface ClientRepresentation {
     name: string;
     description: string;
     redirectUris: string[];
+    authorizationServicesEnabled: boolean;
+    serviceAccountsEnabled: boolean;
 }

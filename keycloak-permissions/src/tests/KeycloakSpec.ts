@@ -1,6 +1,5 @@
 import { Helper } from './Helper';
 import * as chai from 'chai';
-import * as _ from 'lodash';
 import 'mocha';
 import { AuthSettings } from '../lib/AuthSettings';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
@@ -12,9 +11,9 @@ describe('Keycloak test', () => {
     const helper = new Helper();
     const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
 
-    const increment = 3;
-    const realmName = `realm-a-${increment}`;
-    const clientName = `library-a-client-${increment}`;
+    const increment = new Date().toISOString().replace(/[-:.]+/ig, '');
+    const realmName = `${increment}`;
+    const clientName = `${increment}-library-client`;
 
     const authSettings: AuthSettings = {
         baseUrl: keycloakBaseUrl,
@@ -33,7 +32,9 @@ describe('Keycloak test', () => {
             clientId: clientName,
             name: clientName,
             description: `Description of ${clientName}`,
-            redirectUris: ['http://localhost']
+            redirectUris: ['http://localhost'],
+            serviceAccountsEnabled: true,
+            authorizationServicesEnabled: true,
         });
     });
 
