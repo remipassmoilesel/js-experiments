@@ -27,6 +27,14 @@ describe('Keycloak test', () => {
     const adminRoleName = 'admin';
     const authorizedUserRoleName = 'authorized_user';
 
+    const getAdminRoleName = (resourceName) => {
+        return `${adminRoleName}-${resourceName}`;
+    };
+
+    const getAuthorizedUserRoleName = (resourceName) => {
+        return `${authorizedUserRoleName}-${resourceName}`;
+    };
+
     const resources = [
         'library-A',
         'library-B',
@@ -68,14 +76,20 @@ describe('Keycloak test', () => {
 
     it('Create realm roles should success', () => {
         const promises: Promise<any>[] = [];
-        promises.push(helper.createRealmRole(realmName, {
-            name: adminRoleName,
-            scopeParamRequired: ''
-        }));
-        promises.push(helper.createRealmRole(realmName, {
-            name: authorizedUserRoleName,
-            scopeParamRequired: ''
-        }));
+
+        _.forEach(resources, (resName) => {
+
+            promises.push(helper.createRealmRole(realmName, {
+                name: getAdminRoleName(resName),
+                scopeParamRequired: ''
+            }));
+
+            promises.push(helper.createRealmRole(realmName, {
+                name: getAuthorizedUserRoleName(resName),
+                scopeParamRequired: ''
+            }));
+
+        });
 
         return Promise.all(promises);
     });
@@ -89,14 +103,20 @@ describe('Keycloak test', () => {
             .then((clientsInfo) => {
                 const clientUid: string = clientsInfo[0].id as any;
                 const promises: Promise<any>[] = [];
-                promises.push(helper.createClientRole(realmName, clientUid, {
-                    name: adminRoleName,
-                    scopeParamRequired: ''
-                }));
-                promises.push(helper.createClientRole(realmName, clientUid, {
-                    name: authorizedUserRoleName,
-                    scopeParamRequired: ''
-                }));
+
+                _.forEach(resources, (resName) => {
+
+                    promises.push(helper.createClientRole(realmName, clientUid, {
+                        name: getAdminRoleName(resName),
+                        scopeParamRequired: ''
+                    }));
+
+                    promises.push(helper.createClientRole(realmName, clientUid, {
+                        name: getAuthorizedUserRoleName(resName),
+                        scopeParamRequired: ''
+                    }));
+
+                });
 
                 return Promise.all(promises);
             });
@@ -110,7 +130,7 @@ describe('Keycloak test', () => {
             promises.push(helper.getInformationsForRealmRoles(realmName, clientUID).then((rolesInfos) => {
                 assert.isTrue(rolesInfos.length > 1);
             }));
-            promises.push(helper.getRealmRoleInfos(realmName, clientUID, adminRoleName).then((rolesInfo) => {
+            promises.push(helper.getRealmRoleInfos(realmName, clientUID, getAdminRoleName(resources[0])).then((rolesInfo) => {
                 assert.isDefined(rolesInfo);
             }));
 
@@ -127,7 +147,7 @@ describe('Keycloak test', () => {
             promises.push(helper.getInformationsForClientsRoles(realmName, clientUID).then((rolesInfos) => {
                 assert.isTrue(rolesInfos.length > 1);
             }));
-            promises.push(helper.getClientRoleInfos(realmName, clientUID, adminRoleName).then((rolesInfo) => {
+            promises.push(helper.getClientRoleInfos(realmName, clientUID, getAdminRoleName(resources[0])).then((rolesInfo) => {
                 assert.isDefined(rolesInfo);
             }));
 
