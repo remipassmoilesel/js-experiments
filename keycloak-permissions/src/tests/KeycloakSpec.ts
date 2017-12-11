@@ -1,5 +1,6 @@
-import { Helper } from './Helper';
+import { Helper } from '../lib/Helper';
 import * as chai from 'chai';
+import * as _ from 'lodash';
 import 'mocha';
 import { AuthSettings } from '../lib/AuthSettings';
 
@@ -26,6 +27,12 @@ describe('Keycloak test', () => {
     const adminRoleName = 'admin';
     const authorizedUserRoleName = 'authorized_user';
 
+    const resources = [
+        'library-A',
+        'library-B',
+        'library-C',
+    ];
+
     it('Create a realm should success', () => {
         return helper.createRealm(realmName);
     });
@@ -39,6 +46,24 @@ describe('Keycloak test', () => {
             serviceAccountsEnabled: true,
             authorizationServicesEnabled: true,
         });
+    });
+
+    it('Create resources should success', () => {
+
+        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+
+            const clientUID: string = clientsInfo[0].id as any;
+            const promises = _.forEach(resources, (resName) => {
+                return helper.createResource(realmName, clientUID, {
+                    name: resName,
+                    scopes: [],
+                    uri: `uri:id:${resName}`,
+                });
+            });
+
+            return Promise.all(promises);
+        });
+
     });
 
     it('Create realm roles should success', () => {
@@ -162,9 +187,7 @@ describe('Keycloak test', () => {
                             { id: data.clientAdminRoleId, required: true },
                         ],
                     }
-                ).then(function () {
-                    console.log(arguments);
-                }));
+                ));
                 promises.push(helper.createPolicy(realmName, data.clientUID,
                     {
                         type: 'role',

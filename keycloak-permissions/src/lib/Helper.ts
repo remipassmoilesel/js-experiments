@@ -1,10 +1,11 @@
 import * as request from 'request-promise';
-import { AuthSettings } from '../lib/AuthSettings';
-import { ClientRepresentation } from '../lib/ClientRepresentation';
+import { AuthSettings } from './AuthSettings';
+import { ClientRepresentation } from './ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
 import * as _ from 'lodash';
-import { RoleRepresentation } from '../lib/RealmRoleRepresentation';
-import { PolicyRoleBasedRepresentation } from '../lib/PolicyRoleBasedRepresentation';
+import { RoleRepresentation } from './RealmRoleRepresentation';
+import { PolicyRoleBasedRepresentation } from './PolicyRoleBasedRepresentation';
+import { ResourceRepresentation } from './ResourceRepresentation';
 
 export class Helper {
     private authSettings: AuthSettings;
@@ -84,6 +85,20 @@ export class Helper {
                 uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/role`,
                 auth: auth,
                 body: policyRepr,
+                json: true
+            };
+            return request(options);
+        });
+    }
+
+    public createResource(realmName: string, clientUID: string, resourceRepr: ResourceRepresentation) {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: 'POST',
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/resource`,
+                auth: auth,
+                body: resourceRepr,
                 json: true
             };
             return request(options);
