@@ -6,7 +6,9 @@ import { AuthSettings } from '../lib/AuthSettings';
 
 const assert = chai.assert;
 
-describe('Keycloak test', () => {
+describe('Keycloak test', function() {
+
+    this.timeout(5000);
 
     const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
     const authSettings: AuthSettings = {
@@ -26,6 +28,11 @@ describe('Keycloak test', () => {
 
     const adminRoleName = 'admin';
     const authorizedUserRoleName = 'authorized_user';
+
+    const users = [
+        { id: 'user1', roles: [] },
+        { id: 'user2', roles: [] }
+    ];
 
     const getAdminRoleName = (resourceName) => {
         return `${adminRoleName}-${resourceName}`;
@@ -237,6 +244,21 @@ describe('Keycloak test', () => {
 
         return Promise.all(promises);
 
+    });
+
+    it('Create users should success', () => {
+        const promises: Promise<any>[] = [];
+
+        _.forEach(users, (user) => {
+            promises.push(helper.createUser(realmName, {
+                enabled: true,
+                attributes: {},
+                username: user.id,
+                emailVerified: '',
+            }));
+        });
+
+        return Promise.all(promises);
     });
 
 

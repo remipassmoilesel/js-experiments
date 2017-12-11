@@ -1,12 +1,13 @@
 import * as request from 'request-promise';
 import { AuthSettings } from './AuthSettings';
-import { ClientRepresentation } from './ClientRepresentation';
+import { ClientRepresentation } from './representations/ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
 import * as _ from 'lodash';
-import { RoleRepresentation } from './RealmRoleRepresentation';
-import { PolicyRoleBasedRepresentation } from './PolicyRoleBasedRepresentation';
-import { ResourceRepresentation } from './ResourceRepresentation';
-import { ResourcePermissionRepresentation } from './ResourcePermissionRepresentation';
+import { RoleRepresentation } from './representations/RealmRoleRepresentation';
+import { PolicyRoleBasedRepresentation } from './representations/PolicyRoleBasedRepresentation';
+import { ResourceRepresentation } from './representations/ResourceRepresentation';
+import { ResourcePermissionRepresentation } from './representations/ResourcePermissionRepresentation';
+import { UserRepresenstation } from './representations/UserRepresenstation';
 
 export class KeycloakHelper {
 
@@ -227,6 +228,12 @@ export class KeycloakHelper {
 
     }
 
+    public createUser(realmName: string, user: UserRepresenstation) {
+        return kca(this.authSettings)
+            .then((client) => {
+                client.users.create(realmName, user);
+            });
+    }
 
     // TODO: finalize
     public evaluate(payload) {
