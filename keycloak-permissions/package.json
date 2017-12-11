@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --full-trace --recursive 'build/**/*Spec.js'",
+    "start": "npm run clean-compile && node build/main.js",
+    "test": "npm run clean-compile && ./node_modules/.bin/mocha --full-trace --recursive 'build/**/*Spec.js'",
     "clean": "./node_modules/.bin/rimraf build",
     "compile": "tsc --pretty",
     "compile-watch": "tsc --pretty -w",
@@ -17,6 +18,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/chai": "^4.0.8",
+    "@types/node": "^8.0.57",
     "chai": "^4.1.2",
     "mocha": "^4.0.1"
   },

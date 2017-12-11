@@ -6,7 +6,7 @@ import { KeycloakHelper } from "../lib/KeyloakHelper";
 
 const assert = chai.assert;
 
-describe("Keycloak test", function () {
+describe("Keycloak helper test", function () {
 
     this.timeout(5000);
 
@@ -197,6 +197,7 @@ describe("Keycloak test", function () {
                 clientName, getAuthorizedUserRoleName(res), getAuthorizedUserRoleName(res)));
         });
 
+        return Promise.all(promises);
     });
 
     it("Get informations on resource should success", () => {

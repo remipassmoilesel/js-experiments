@@ -1,5 +1,5 @@
-
-import { IAuthSettings } from './lib/AuthSettings';
+import { IAuthSettings } from "./lib/AuthSettings";
+import { KeycloakFlooder } from "./lib/KeycloakFlooder";
 
 const keycloakBaseUrl = "http://172.17.0.3:8080/auth";
 const authSettings: IAuthSettings = {
@@ -9,3 +9,10 @@ const authSettings: IAuthSettings = {
     grant_type: "password",
     client_id: "admin-cli",
 };
+
+const increment = new Date().toISOString().replace(/[-:.]+/ig, "");
+const realmName = `${increment}`;
+const clientName = `libraries`;
+
+const kf = new KeycloakFlooder(authSettings);
+kf.flood(realmName, clientName, 10, 10);
