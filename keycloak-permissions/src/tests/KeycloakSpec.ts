@@ -48,16 +48,18 @@ describe('Keycloak test', () => {
     });
 
     it('Get client informations from clientId should success', () => {
-        return helper.getClientInfos(authSettings, realmName, clientName).then((infos) => {
-            console.log(infos);
-        });
+        return helper.getClientInfos(authSettings, realmName, clientName);
     });
 
     it('Create a client role should success', () => {
-        // return helper.createClientRole(authSettings, realmName, {
-        //     name: adminRoleName,
-        //     scopeParamRequired: ''
-        // });
+        return helper.getClientInfos(authSettings, realmName, clientName)
+            .then((clientsInfo) => {
+                const clientUid: string = clientsInfo[0].id as any;
+                return helper.createClientRole(authSettings, realmName, clientUid, {
+                    name: adminRoleName,
+                    scopeParamRequired: ''
+                });
+            });
     });
 
 
