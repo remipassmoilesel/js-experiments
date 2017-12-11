@@ -1,0 +1,26 @@
+{
+  "name": "keycloak",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --full-trace --recursive 'build/tests/**/*Spec.js'",
+    "clean": "./node_modules/.bin/rimraf build",
+    "compile": "tsc --pretty",
+    "compile-watch": "tsc --pretty -w",
+    "clean-compile": "npm run clean && npm run compile"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
+  },
+  "dependencies": {
+    "keycloak-admin-client": "^0.12.0",
+    "request-promise": "^4.2.2"
+  }
+}
