@@ -12,6 +12,7 @@ const log = (msg) => {
 };
 
 export class KeycloakFlooder {
+
     private helper: KeycloakHelper;
     private adminRoleName = "admin";
     private authorizedUserRoleName = "authorized_user";
@@ -40,6 +41,8 @@ export class KeycloakFlooder {
             .then(this.createPolicies.bind(this))
             .then(this.createPermissions.bind(this))
             .then(this.createUsers.bind(this))
+            .then(this.mapClientRoles.bind(this))
+            .then(this.mapRealmRoles.bind(this))
             .then(() => {
                 log("Flooooded !");
             })
@@ -49,6 +52,115 @@ export class KeycloakFlooder {
             });
 
     }
+
+    private mapRealmRoles() {
+
+        log("Start realm roles mapping");
+
+        const { userMappings, adminMappings } = this.prepareMappings();
+
+        const promises: Array<Promise<any>> = [];
+        _.forEach(userMappings, (roles, user) => {
+                promises.push(this.mapRealmRolesWithUser(user, roles));
+            });
+
+        _.forEach(adminMappings, (roles, user) => {
+                promises.push(this.mapRealmRolesWithUser(user, roles));
+            });
+
+        return Promise.all(promises);
+
+    }
+
+    private mapRealmRolesWithUser(userId: string, roles: string[]): Promise<any> {
+        return this.helper.getUser(this.realmName, userId).then((userInfo) => {
+
+            const promises: any[] = [];
+
+            _.forEach(roles, (role: string) => {
+
+                promises.push(this.helper.bindRealmRoleToUser(
+                    this.realmName,
+                    userId,
+                    role,
+                ));
+            });
+
+            return Promise.all(promises);
+        });
+    }
+
+    private mapClientRoles() {
+
+        log("Start client roles mapping");
+
+        const { userMappings, adminMappings } = this.prepareMappings();
+
+        return this.helper.getClient(this.realmName, this.clientName).then((clientsInfo) => {
+            const clientUID: string = clientsInfo.id as any;
+
+            const promises: Array<Promise<any>> = [];
+            _.forEach(userMappings, (roles, user) => {
+                promises.push(this.mapClientRolesWithUser(clientUID, user, roles));
+            });
+
+            _.forEach(adminMappings, (roles, user) => {
+                promises.push(this.mapClientRolesWithUser(clientUID, user, roles));
+            });
+
+            return Promise.all(promises);
+
+        });
+
+    }
+
+    private mapClientRolesWithUser(clientUID: string, userId: string, roles: string[]): Promise<any> {
+        return this.helper.getUser(this.realmName, userId).then((userInfo) => {
+
+            const promises: any[] = [];
+
+            _.forEach(roles, (role: string) => {
+
+                promises.push(this.helper.bindClientRoleToUser(
+                    this.realmName,
+                    clientUID,
+                    userId,
+                    role,
+                ));
+            });
+
+            return Promise.all(promises);
+        });
+    }
+
+    private prepareMappings(): any {
+        const userMappings: any[] = [];
+        const adminMappings: any[] = [];
+        _.forEach(this.users, (user: string) => {
+
+            // user can use ~~ 50 lib
+            userMappings[user] = [];
+            _.times(50, () => {
+                const sres: string = this.getAuthorizedUserRoleName(_.sample(this.resources).name);
+                if (userMappings[user].indexOf(sres) === -1) {
+                    userMappings[user].push(sres);
+                }
+            });
+
+            // user can administrate ~~ 15 lib
+            adminMappings[user] = [];
+            _.times(15, () => {
+                const sres: string = this.getAdminRoleName(_.sample(this.resources).name);
+                if (adminMappings[user].indexOf(sres) === -1) {
+                    adminMappings[user].push(sres);
+                }
+            });
+
+        });
+
+        return { userMappings, adminMappings };
+    }
+
 
     private createUsers() {
 
