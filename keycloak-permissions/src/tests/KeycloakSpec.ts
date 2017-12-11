@@ -88,12 +88,13 @@ describe("Keycloak test", function () {
         return helper.getClient(realmName, clientName).then((clientsInfo) => {
 
             const clientUID: string = clientsInfo.id as any;
-            const promises = _.forEach(resources, (resName) => {
-                return helper.createResource(realmName, clientUID, {
+            const promises: any[] = [];
+            _.forEach(resources, (resName) => {
+                promises.push(helper.createResource(realmName, clientUID, {
                     name: resName,
                     scopes: [],
                     uri: getResourceUri(resName),
-                });
+                }));
             });
 
             return Promise.all(promises);
