@@ -6,10 +6,24 @@ import * as kca from 'keycloak-admin-client';
 
 export class Helper {
 
-    public createRealm(settings: AuthSettings, realmName: string) {
+    public createRealm(settings: AuthSettings, realmName: string): Promise<any> {
         return kca(settings)
             .then((client) => {
                 return client.realms.create({ realm: realmName });
+            });
+    }
+
+    public createClient(settings: AuthSettings, realmName: string, clientName: string) {
+        return kca(settings)
+            .then((client) => {
+
+                const newClient = {
+                    clientId: clientName,
+                    description: `Client ${clientName}`,
+                    bearerOnly: true
+                };
+
+                return client.clients.create(realmName, newClient);
             });
     }
 

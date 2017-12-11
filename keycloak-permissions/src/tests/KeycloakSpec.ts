@@ -11,7 +11,7 @@ describe('Keycloak test', () => {
 
     const helper = new Helper();
     const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
-    const realmName = 'master';
+    const realmName = 'realm-a';
     const clientName = 'library-a-client';
 
     const authSettings: AuthSettings = {
@@ -22,8 +22,12 @@ describe('Keycloak test', () => {
         client_id: 'admin-cli'
     };
 
-    it.only('Create a realm should success', () => {
-        return helper.createRealm(authSettings, 'realm1').then(function () {
+    it('Create a realm should success', () => {
+        return helper.createRealm(authSettings, realmName);
+    });
+
+    it('Create a client should success', () => {
+        return helper.createClient(authSettings, realmName, clientName).then(function () {
             console.log(arguments);
         });
     });
