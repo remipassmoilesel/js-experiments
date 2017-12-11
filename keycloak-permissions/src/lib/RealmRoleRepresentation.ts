@@ -1,5 +1,5 @@
 
-export interface RealmRoleRepresentation {
+export interface RoleRepresentation {
     name: string;
     scopeParamRequired: string;
 }

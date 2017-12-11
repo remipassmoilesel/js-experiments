@@ -13,7 +13,7 @@ describe('Keycloak test', () => {
 
     const increment = new Date().toISOString().replace(/[-:.]+/ig, '');
     const realmName = `${increment}`;
-    const clientName = `library-client-a`;
+    const clientName = `000-library-client-a`;
 
     const adminRoleName = 'admin';
 
@@ -25,11 +25,11 @@ describe('Keycloak test', () => {
         client_id: 'admin-cli'
     };
 
-    it.only('Create a realm should success', () => {
+    it('Create a realm should success', () => {
         return helper.createRealm(authSettings, realmName);
     });
 
-    it.only('Create a client should success', () => {
+    it('Create a client should success', () => {
         return helper.createClient(authSettings, realmName, {
             clientId: clientName,
             name: clientName,
@@ -40,11 +40,24 @@ describe('Keycloak test', () => {
         });
     });
 
-    it.only('Create a role should success', () => {
+    it('Create a realm role should success', () => {
         return helper.createRealmRole(authSettings, realmName, {
             name: adminRoleName,
             scopeParamRequired: ''
         });
+    });
+
+    it('Get client informations from clientId should success', () => {
+        return helper.getClientInfos(authSettings, realmName, clientName).then((infos) => {
+            console.log(infos);
+        });
+    });
+
+    it('Create a client role should success', () => {
+        // return helper.createClientRole(authSettings, realmName, {
+        //     name: adminRoleName,
+        //     scopeParamRequired: ''
+        // });
     });
 
 

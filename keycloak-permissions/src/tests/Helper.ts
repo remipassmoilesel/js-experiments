@@ -3,28 +3,40 @@ import { AuthSettings } from '../lib/AuthSettings';
 import { ResourceRepresentation } from '../lib/ResourceRepresentation';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
-import { RealmRoleRepresentation } from '../lib/RealmRoleRepresentation';
+import { RoleRepresentation } from '../lib/RealmRoleRepresentation';
 
 export class Helper {
 
     public createRealm(settings: AuthSettings, realmName: string): Promise<any> {
-        return kca(settings)
-            .then((client) => {
-                return client.realms.create({ realm: realmName });
-            });
+        return kca(settings).then((client) => {
+            return client.realms.create({ realm: realmName });
+        });
     }
 
-    public createClient(settings: AuthSettings, realmName: string, clientRepr: ClientRepresentation) {
-        return kca(settings)
-            .then((client) => {
-                return client.clients.create(realmName, clientRepr);
-            });
+    public createClient(settings: AuthSettings, realmName: string, clientRepr: ClientRepresentation): Promise<any> {
+        return kca(settings).then((client) => {
+            return client.clients.create(realmName, clientRepr);
+        });
     }
 
-    public createRealmRole(settings: AuthSettings, realmName: string, realmRepr: RealmRoleRepresentation) {
-        return kca(settings)
+    public createRealmRole(settings: AuthSettings, realmName: string, roleRepr: RoleRepresentation): Promise<any> {
+        return kca(settings).then((client) => {
+            return client.realms.roles.create(realmName, roleRepr);
+        });
+    }
+
+    public getClientInfos(settings: AuthSettings, realmName: string, clientId: string): Promise<ClientRepresentation[]> {
+        return kca(settings).then((client) => {
+            const options = { clientId };
+            return client.clients.find(realmName, options);
+        });
+    }
+
+    public createClientRole(authSettings: AuthSettings, realmName: string, clientUID: string,
+                            roleRepr: RoleRepresentation) {
+        return kca(authSettings)
             .then((client) => {
-                return client.realms.roles.create(realmName, realmRepr);
+                return client.clients.roles.create(realmName, clientUID, roleRepr);
             });
     }
 
