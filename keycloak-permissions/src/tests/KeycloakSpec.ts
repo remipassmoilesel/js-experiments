@@ -6,7 +6,7 @@ import { AuthSettings } from '../lib/AuthSettings';
 
 const assert = chai.assert;
 
-describe('Keycloak test', function() {
+describe('Keycloak test', function () {
 
     this.timeout(5000);
 
@@ -85,7 +85,7 @@ describe('Keycloak test', function() {
 
     it('Create resources should success', () => {
 
-        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+        return helper.getClientsList(realmName, clientName).then((clientsInfo) => {
 
             const clientUID: string = clientsInfo[0].id as any;
             const promises = _.forEach(resources, (resName) => {
@@ -122,11 +122,11 @@ describe('Keycloak test', function() {
     });
 
     it('Get client informations from clientId should success', () => {
-        return helper.getInformationsForClients(realmName, clientName);
+        return helper.getClientsList(realmName, clientName);
     });
 
     it('Create a client role should success', () => {
-        return helper.getInformationsForClients(realmName, clientName)
+        return helper.getClientsList(realmName, clientName)
             .then((clientsInfo) => {
                 const clientUid: string = clientsInfo[0].id as any;
                 const promises: Promise<any>[] = [];
@@ -150,14 +150,14 @@ describe('Keycloak test', function() {
     });
 
     it('Get realm role informations should success', () => {
-        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+        return helper.getClientsList(realmName, clientName).then((clientsInfo) => {
 
             const clientUID: string = clientsInfo[0].id as any;
             const promises: Promise<any>[] = [];
-            promises.push(helper.getInformationsForRealmRoles(realmName, clientUID).then((rolesInfos) => {
+            promises.push(helper.getRealmRolesList(realmName).then((rolesInfos) => {
                 assert.isTrue(rolesInfos.length > 1);
             }));
-            promises.push(helper.getRealmRoleInfos(realmName, clientUID, getAdminRoleName(resources[0])).then((rolesInfo) => {
+            promises.push(helper.getRealmRole(realmName, getAdminRoleName(resources[0])).then((rolesInfo) => {
                 assert.isDefined(rolesInfo);
             }));
 
@@ -167,14 +167,14 @@ describe('Keycloak test', function() {
     });
 
     it('Get client role informations should success', () => {
-        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+        return helper.getClientsList(realmName, clientName).then((clientsInfo) => {
 
             const clientUID: string = clientsInfo[0].id as any;
             const promises: Promise<any>[] = [];
-            promises.push(helper.getInformationsForClientsRoles(realmName, clientUID).then((rolesInfos) => {
+            promises.push(helper.getClientRolesList(realmName, clientUID).then((rolesInfos) => {
                 assert.isTrue(rolesInfos.length > 1);
             }));
-            promises.push(helper.getClientRoleInfos(realmName, clientUID, getAdminRoleName(resources[0])).then((rolesInfo) => {
+            promises.push(helper.getClientRole(realmName, clientUID, getAdminRoleName(resources[0])).then((rolesInfo) => {
                 assert.isDefined(rolesInfo);
             }));
 
@@ -198,7 +198,7 @@ describe('Keycloak test', function() {
 
     it('Get informations on resource should success', () => {
 
-        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+        return helper.getClientsList(realmName, clientName).then((clientsInfo) => {
             const clientUID: string = clientsInfo[0].id as any;
             return helper.getResourceInformations(realmName, clientUID, getResourceUri(resources[0]))
                 .then((infos) => {
@@ -210,7 +210,7 @@ describe('Keycloak test', function() {
 
     it('Get informations on policy should success', () => {
 
-        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+        return helper.getClientsList(realmName, clientName).then((clientsInfo) => {
             const clientUID: string = clientsInfo[0].id as any;
             return helper.getPoliciesInformations(realmName, clientUID, getAdminPolicyName(resources[0]))
                 .then((infos) => {
@@ -256,6 +256,22 @@ describe('Keycloak test', function() {
                 username: user.id,
                 emailVerified: '',
             }));
+        });
+
+        return Promise.all(promises);
+    });
+
+    it('Get user informations should success', () => {
+        return helper.findUser(realmName, users[0].id).then((user) => {
+            assert.isDefined(user);
+        });
+    });
+
+    it('Map realm role to user should success', () => {
+        const promises: Promise<any>[] = [];
+
+        _.forEach(users, (user) => {
+            promises.push(helper.bindRealmRoleToUser(realmName, user.id, getAdminRoleName(resources[0])));
         });
 
         return Promise.all(promises);

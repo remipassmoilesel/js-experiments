@@ -35,7 +35,7 @@ export class KeycloakHelper {
         });
     }
 
-    public getInformationsForClients(realmName: string, clientId: string): Promise<ClientRepresentation[]> {
+    public getClientsList(realmName: string, clientId: string): Promise<ClientRepresentation[]> {
         return kca(this.authSettings).then((client) => {
             const options = { clientId };
             return client.clients.find(realmName, options);
@@ -50,30 +50,30 @@ export class KeycloakHelper {
             });
     }
 
-    public getInformationsForRealmRoles(realmName: string, clientUID: string): Promise<RoleRepresentation[]> {
+    public getRealmRolesList(realmName: string): Promise<RoleRepresentation[]> {
         return kca(this.authSettings)
             .then((client) => {
                 return client.realms.roles.find(realmName);
             });
     }
 
-    public getRealmRoleInfos(realmName: string, clientUID: string, roleName: string): Promise<RoleRepresentation> {
-        return this.getInformationsForRealmRoles(realmName, clientUID).then((roles) => {
+    public getRealmRole(realmName: string, roleName: string): Promise<RoleRepresentation> {
+        return this.getRealmRolesList(realmName).then((roles) => {
             return _.filter(roles, (r) => {
                 return r.name === roleName;
             })[0];
         });
     }
 
-    public getInformationsForClientsRoles(realmName: string, clientUID: string): Promise<RoleRepresentation[]> {
+    public getClientRolesList(realmName: string, clientUID: string): Promise<RoleRepresentation[]> {
         return kca(this.authSettings)
             .then((client) => {
                 return client.clients.roles.find(realmName, clientUID);
             });
     }
 
-    public getClientRoleInfos(realmName: string, clientUID: any, roleName: string) {
-        return this.getInformationsForClientsRoles(realmName, clientUID).then((roles) => {
+    public getClientRole(realmName: string, clientUID: any, roleName: string) {
+        return this.getClientRolesList(realmName, clientUID).then((roles) => {
             return _.filter(roles, (r) => {
                 return r.name === roleName;
             })[0];
@@ -125,21 +125,21 @@ export class KeycloakHelper {
 
     public createPolicyFor(realmName: string, policyName: string, clientName: string, realmRole: string, clientRole: string): Promise<any> {
 
-        return this.getInformationsForClients(realmName, clientName)
+        return this.getClientsList(realmName, clientName)
             .then((clientsInfo) => {
                 // find client id
                 return { clientUID: clientsInfo[0].id as any };
             })
             .then((data: any) => {
                 // find realm role id
-                return this.getRealmRoleInfos(realmName, data.clientUID, realmRole).then((roleInfos) => {
+                return this.getRealmRole(realmName, realmRole).then((roleInfos) => {
                     data.realmRoleId = roleInfos.id;
                     return data;
                 });
             })
             .then((data: any) => {
                 // find client role id
-                return this.getClientRoleInfos(realmName, data.clientUID, clientRole).then((roleInfos) => {
+                return this.getClientRole(realmName, data.clientUID, clientRole).then((roleInfos) => {
                     data.clientRoleId = roleInfos.id;
                     return data;
                 });
@@ -193,7 +193,7 @@ export class KeycloakHelper {
 
     public createPermissionFor(realmName: string, clientName: string, permissionName: string, resourceUri: string, policyName: string) {
 
-        return this.getInformationsForClients(realmName, clientName)
+        return this.getClientsList(realmName, clientName)
             .then((clientsInfo) => {
                 // find client id
                 return { clientUID: clientsInfo[0].id as any };
@@ -233,6 +233,47 @@ export class KeycloakHelper {
             .then((client) => {
                 client.users.create(realmName, user);
             });
+    }
+
+    public findUser(realmName: string, userId: string): Promise<UserRepresenstation> {
+
+        return this.getAuth().then((auth) => {
+
+            const options = {
+                method: 'GET',
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users?first=0&max=20&search=${userId}`,
+                auth: auth,
+                json: true
+            };
+
+            return request(options).then((users) => {
+                return users[0];
+            });
+
+        });
+
+    }
+
+
+    public bindRealmRoleToUser(realmName: string, userId: string, realmRoleName: string) {
+
+        return this.getAuth().then((auth) => {
+
+            return this.getRealmRole(realmName, realmRoleName).then((role) => {
+
+                const options = {
+                    method: 'POST',
+                    uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users/${userId}/role-mappings/realm`,
+                    auth: auth,
+                    body: [role],
+                    json: true
+                };
+
+                return request(options);
+            });
+
+        });
+
     }
 
     // TODO: finalize
