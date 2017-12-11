@@ -13,7 +13,9 @@ describe('Keycloak test', () => {
 
     const increment = new Date().toISOString().replace(/[-:.]+/ig, '');
     const realmName = `${increment}`;
-    const clientName = `${increment}-library-client`;
+    const clientName = `library-client-a`;
+
+    const adminRoleName = 'admin';
 
     const authSettings: AuthSettings = {
         baseUrl: keycloakBaseUrl,
@@ -38,7 +40,15 @@ describe('Keycloak test', () => {
         });
     });
 
-    it('List clients should success', () => {
+    it.only('Create a role should success', () => {
+        return helper.createRealmRole(authSettings, realmName, {
+            name: adminRoleName,
+            scopeParamRequired: ''
+        });
+    });
+
+
+    it.skip('List clients should success', () => {
         return helper.getClients(authSettings, realmName).then((data: ClientRepresentation[]) => {
             assert.isTrue(data.length > 2);
         });

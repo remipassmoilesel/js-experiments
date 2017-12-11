@@ -22,3 +22,10 @@ Associe une ressource protégée avec une policy pour vérifier un accès.
 
 Condition à valider pour accéder à une ressource.
 
+## Realm role
+
+Espace de nom pour des rôles globaux.
+
+## Client role
+
+Rôle utilisable dans l'epace de nom d'un client seulement.

@@ -3,6 +3,7 @@ import { AuthSettings } from '../lib/AuthSettings';
 import { ResourceRepresentation } from '../lib/ResourceRepresentation';
 import { ClientRepresentation } from '../lib/ClientRepresentation';
 import * as kca from 'keycloak-admin-client';
+import { RealmRoleRepresentation } from '../lib/RealmRoleRepresentation';
 
 export class Helper {
 
@@ -17,6 +18,13 @@ export class Helper {
         return kca(settings)
             .then((client) => {
                 return client.clients.create(realmName, clientRepr);
+            });
+    }
+
+    public createRealmRole(settings: AuthSettings, realmName: string, realmRepr: RealmRoleRepresentation) {
+        return kca(settings)
+            .then((client) => {
+                return client.realms.roles.create(realmName, realmRepr);
             });
     }
 
@@ -105,4 +113,5 @@ export class Helper {
             };
         });
     }
+
 }
