@@ -1,4 +1,5 @@
-export interface UserRepresenstation {
+export interface UserRepresentation {
+    id?: string;
     enabled: boolean;
     attributes: any;
     username: string;

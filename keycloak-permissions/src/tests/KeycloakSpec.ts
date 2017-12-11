@@ -271,7 +271,11 @@ describe('Keycloak test', function () {
         const promises: Promise<any>[] = [];
 
         _.forEach(users, (user) => {
-            promises.push(helper.bindRealmRoleToUser(realmName, user.id, getAdminRoleName(resources[0])));
+            promises.push(
+                helper.findUser(realmName, user.id)
+                    .then((userInfo) => {
+                        helper.bindRealmRoleToUser(realmName, (userInfo.id as any), getAdminRoleName(resources[0]));
+                    }));
         });
 
         return Promise.all(promises);

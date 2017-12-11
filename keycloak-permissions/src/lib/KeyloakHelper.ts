@@ -7,7 +7,7 @@ import { RoleRepresentation } from './representations/RealmRoleRepresentation';
 import { PolicyRoleBasedRepresentation } from './representations/PolicyRoleBasedRepresentation';
 import { ResourceRepresentation } from './representations/ResourceRepresentation';
 import { ResourcePermissionRepresentation } from './representations/ResourcePermissionRepresentation';
-import { UserRepresenstation } from './representations/UserRepresenstation';
+import { UserRepresentation } from './representations/UserRepresentation';
 
 export class KeycloakHelper {
 
@@ -228,14 +228,14 @@ export class KeycloakHelper {
 
     }
 
-    public createUser(realmName: string, user: UserRepresenstation) {
+    public createUser(realmName: string, user: UserRepresentation) {
         return kca(this.authSettings)
             .then((client) => {
                 client.users.create(realmName, user);
             });
     }
 
-    public findUser(realmName: string, userId: string): Promise<UserRepresenstation> {
+    public findUser(realmName: string, userId: string): Promise<UserRepresentation> {
 
         return this.getAuth().then((auth) => {
 
