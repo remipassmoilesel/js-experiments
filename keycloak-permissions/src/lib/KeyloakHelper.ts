@@ -6,8 +6,10 @@ import * as _ from 'lodash';
 import { RoleRepresentation } from './RealmRoleRepresentation';
 import { PolicyRoleBasedRepresentation } from './PolicyRoleBasedRepresentation';
 import { ResourceRepresentation } from './ResourceRepresentation';
+import { ResourcePermissionRepresentation } from './ResourcePermissionRepresentation';
 
-export class Helper {
+export class KeycloakHelper {
+
     private authSettings: AuthSettings;
 
     constructor(settings: AuthSettings) {
@@ -91,6 +93,21 @@ export class Helper {
         });
     }
 
+    public createPermission(realmName: string, clientUID: string,
+                            permissionRepr: ResourcePermissionRepresentation) {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: 'POST',
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/permission/resource`,
+                auth: auth,
+                body: permissionRepr,
+                json: true
+            };
+            return request(options);
+        });
+    }
+
     public createResource(realmName: string, clientUID: string, resourceRepr: ResourceRepresentation) {
 
         return this.getAuth().then((auth) => {
@@ -105,7 +122,7 @@ export class Helper {
         });
     }
 
-    public createPolicyFor(realmName: string, policyName: string, clientName: string, realmRole: string, clientRole: string) {
+    public createPolicyFor(realmName: string, policyName: string, clientName: string, realmRole: string, clientRole: string): Promise<any> {
 
         return this.getInformationsForClients(realmName, clientName)
             .then((clientsInfo) => {
@@ -139,6 +156,75 @@ export class Helper {
                         ],
                     });
             });
+    }
+
+    public getResourceInformations(realmName: string, clientUID: string, resourceUri: string): Promise<ResourceRepresentation> {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: 'GET',
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/resource?deep=false&first=0&max=20&name=&uri=${resourceUri}`,
+                auth: auth,
+                json: true
+            };
+            return request(options).then((resources) => {
+                return resources[0];
+            });
+        });
+
+    }
+
+    public getPoliciesInformations(realmName: string, clientUID: string, policyName: string): Promise<ResourcePermissionRepresentation> {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: 'GET',
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy?first=0&max=20&name=${policyName}&permission=false`,
+                auth: auth,
+                json: true
+            };
+            return request(options).then((policies) => {
+                return policies[0];
+            });
+        });
+
+    }
+
+    public createPermissionFor(realmName: string, clientName: string, permissionName: string, resourceUri: string, policyName: string) {
+
+        return this.getInformationsForClients(realmName, clientName)
+            .then((clientsInfo) => {
+                // find client id
+                return { clientUID: clientsInfo[0].id as any };
+            })
+            .then((data: any) => {
+                // find resource uid
+                return this.getResourceInformations(realmName, data.clientUID, resourceUri).then((resourceRepr) => {
+                    data.resourceId = resourceRepr._id;
+                    return data;
+                });
+            })
+            .then((data: any) => {
+                // find policy uid
+                return this.getPoliciesInformations(realmName, data.clientUID, policyName).then((policyInfos) => {
+                    data.policyId = policyInfos.id;
+                    return data;
+                });
+            })
+            .then((data) => {
+                return this.createPermission(realmName, data.clientUID,
+                    {
+                        type: 'resource',
+                        logic: 'POSITIVE',
+                        decisionStrategy: 'UNANIMOUS',
+                        name: permissionName,
+                        resources: [data.resourceId], // TODO: try to allocate more resources in order to create
+                                                      // less permissions ?
+                        policies: [data.policyId]
+                    }
+                );
+            });
+
     }
 
 

@@ -1,4 +1,4 @@
-import { Helper } from '../lib/Helper';
+import { KeycloakHelper } from '../lib/KeyloakHelper';
 import * as chai from 'chai';
 import * as _ from 'lodash';
 import 'mocha';
@@ -18,7 +18,7 @@ describe('Keycloak test', () => {
     };
 
 
-    const helper = new Helper(authSettings);
+    const helper = new KeycloakHelper(authSettings);
 
     const increment = new Date().toISOString().replace(/[-:.]+/ig, '');
     const realmName = `${increment}`;
@@ -33,6 +33,26 @@ describe('Keycloak test', () => {
 
     const getAuthorizedUserRoleName = (resourceName) => {
         return `${authorizedUserRoleName}-${resourceName}`;
+    };
+
+    const getAdminPolicyName = (resourceName) => {
+        return `Admins can administrate ${resourceName}`;
+    };
+
+    const getAuthorizedUserPolicyName = (resourceName) => {
+        return `Users can use ${resourceName}`;
+    };
+
+    const getAdminPermissionName = (resourceName) => {
+        return `Permission - Admins can administrate ${resourceName}`;
+    };
+
+    const getAuthorizedUserPermissionName = (resourceName) => {
+        return `Permission - Users can use ${resourceName}`;
+    };
+
+    const getResourceUri = (resourceName) => {
+        return `uri:id:${resourceName}`;
     };
 
     const resources = [
@@ -65,7 +85,7 @@ describe('Keycloak test', () => {
                 return helper.createResource(realmName, clientUID, {
                     name: resName,
                     scopes: [],
-                    uri: `uri:id:${resName}`,
+                    uri: getResourceUri(resName),
                 });
             });
 
@@ -160,12 +180,62 @@ describe('Keycloak test', () => {
 
         const promises: Promise<any>[] = [];
         _.forEach(resources, (res) => {
-            promises.push(helper.createPolicyFor(realmName, `Admins can administrate ${res}`,
+            promises.push(helper.createPolicyFor(realmName, getAdminPolicyName(res),
                 clientName, getAdminRoleName(res), getAdminRoleName(res)));
 
-            promises.push(helper.createPolicyFor(realmName, `Users can use ${res}`,
+            promises.push(helper.createPolicyFor(realmName, getAuthorizedUserPolicyName(res),
                 clientName, getAuthorizedUserRoleName(res), getAuthorizedUserRoleName(res)));
         });
+
+    });
+
+    it('Get informations on resource should success', () => {
+
+        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+            const clientUID: string = clientsInfo[0].id as any;
+            return helper.getResourceInformations(realmName, clientUID, getResourceUri(resources[0]))
+                .then((infos) => {
+                    assert.isDefined(infos);
+                });
+        });
+
+    });
+
+    it('Get informations on policy should success', () => {
+
+        return helper.getInformationsForClients(realmName, clientName).then((clientsInfo) => {
+            const clientUID: string = clientsInfo[0].id as any;
+            return helper.getPoliciesInformations(realmName, clientUID, getAdminPolicyName(resources[0]))
+                .then((infos) => {
+                    assert.isDefined(infos);
+                });
+        });
+
+    });
+
+    it('Create permissions should success', () => {
+
+        const promises: Promise<any>[] = [];
+        _.forEach(resources, (res) => {
+            promises.push(helper.createPermissionFor(
+                realmName,
+                clientName,
+                getAdminPermissionName(res),
+                res,
+                getAdminPolicyName(res)
+            ));
+
+            promises.push(helper.createPermissionFor(
+                realmName,
+                clientName,
+                getAuthorizedUserPermissionName(res),
+                res,
+                getAuthorizedUserPolicyName(res)
+            ));
+
+        });
+
+        return Promise.all(promises);
 
     });
 
