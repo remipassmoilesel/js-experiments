@@ -202,7 +202,7 @@ describe("Keycloak test", function () {
 
         return helper.getClient(realmName, clientName).then((clientsInfo) => {
             const clientUID: string = clientsInfo.id as any;
-            return helper.getResourceInformations(realmName, clientUID, getResourceUri(resources[0]))
+            return helper.getResource(realmName, clientUID, getResourceUri(resources[0]))
                 .then((infos) => {
                     assert.isDefined(infos);
                 });
@@ -264,7 +264,7 @@ describe("Keycloak test", function () {
     });
 
     it("Get user informations should success", () => {
-        return helper.findUser(realmName, users[0].id).then((user) => {
+        return helper.getUser(realmName, users[0].id).then((user) => {
             assert.isDefined(user);
         });
     });
@@ -274,10 +274,10 @@ describe("Keycloak test", function () {
 
         _.forEach(users, (user) => {
             promises.push(
-                helper.findUser(realmName, user.id)
-                    .then((userInfo) => {
-                        helper.bindRealmRoleToUser(realmName, (userInfo.id as any), getAdminRoleName(resources[0]));
-                    }));
+                helper.getUser(realmName, user.id).then((userInfo) => {
+                    return helper.bindRealmRoleToUser(realmName, (userInfo.id as any), getAdminRoleName(resources[0]));
+                }),
+            );
         });
 
         return Promise.all(promises);
@@ -292,10 +292,11 @@ describe("Keycloak test", function () {
 
             _.forEach(users, (user) => {
                 promises.push(
-                    helper.findUser(realmName, user.id).then((userInfo) => {
-                        helper.bindClientRoleToUser(realmName, clientUID, (userInfo.id as any),
+                    helper.getUser(realmName, user.id).then((userInfo) => {
+                        return helper.bindClientRoleToUser(realmName, clientUID, (userInfo.id as any),
                             getAdminRoleName(resources[0]));
-                    }));
+                    }),
+                );
             });
 
             return Promise.all(promises);
@@ -305,21 +306,29 @@ describe("Keycloak test", function () {
     });
 
     it("Evaluate should success", () => {
-        // const a = {
-        //     resources: [{
-        //         name: "library-A",
-        //         uri: "uri:id:library-A",
-        //         owner: { id: "d159e9a7-0755-4c3c-86e8-23083c7727a3", name: "000-library-client-a" },
-        //         _id: "b242e010-e9a5-41c9-ac70-dd2dfc5cfc6b",
-        //         scopes: [],
-        //     }],
-        //     context: { attributes: {} },
-        //     roleIds: [],
-        //     clientId: "d159e9a7-0755-4c3c-86e8-23083c7727a3",
-        //     userId: "7902ebca-2afd-4a83-9383-b3ff327e97cb",
-        //     entitlements: false,
-        // };
-        // return helper.evaluate(realmName, users[0].id);
+
+        return helper.getClient(realmName, clientName)
+            .then((clientsInfo) => {
+                const clientUID: string = clientsInfo.id as any;
+                return { clientUID };
+            })
+            .then((data: any) => {
+                return helper.getResource(realmName, data.clientUID, resources[0])
+                    .then((res) => {
+                        data.resource = res;
+                        return data;
+                    });
+            })
+            .then((data: any) => {
+                return helper.getUser(realmName, users[0].id)
+                    .then((user) => {
+                        data.user = user;
+                        return data;
+                    });
+            })
+            .then((data: any) => {
+                return helper.evaluate(realmName, data.clientUID, data.resource, data.user.id);
+            });
 
     });
 

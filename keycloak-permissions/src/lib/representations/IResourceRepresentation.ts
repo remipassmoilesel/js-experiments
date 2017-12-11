@@ -4,5 +4,5 @@ export interface IResourceRepresentation {
     name: string;
     scopes: any[];
     uri: string;
-    owner: any;
+    owner?: any;
 }

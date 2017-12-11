@@ -2,6 +2,7 @@ import * as kca from "keycloak-admin-client";
 import * as _ from "lodash";
 import * as request from "request-promise";
 import { IAuthSettings } from "./AuthSettings";
+import { IEvaluationPayload } from "./IEvaluationPayload";
 import { IClientRepresentation } from "./representations/IClientRepresentation";
 import { IPolicyRoleBasedRepresentation } from "./representations/IPolicyRoleBasedRepresentation";
 import { IRoleRepresentation } from "./representations/IRealmRoleRepresentation";
@@ -165,8 +166,8 @@ export class KeycloakHelper {
             });
     }
 
-    public getResourceInformations(realmName: string, clientUID: string,
-                                   resourceUri: string): Promise<IResourceRepresentation> {
+    public getResource(realmName: string, clientUID: string,
+                       resourceUri: string): Promise<IResourceRepresentation> {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -211,7 +212,7 @@ export class KeycloakHelper {
             })
             .then((data: any) => {
                 // find resource uid
-                return this.getResourceInformations(realmName, data.clientUID, resourceUri).then((resourceRepr) => {
+                return this.getResource(realmName, data.clientUID, resourceUri).then((resourceRepr) => {
                     data.resourceId = resourceRepr._id;
                     return data;
                 });
@@ -246,7 +247,7 @@ export class KeycloakHelper {
             });
     }
 
-    public findUser(realmName: string, userId: string): Promise<IUserRepresentation> {
+    public getUser(realmName: string, userId: string): Promise<IUserRepresentation> {
 
         return this.getAuth().then((auth) => {
 
@@ -305,21 +306,27 @@ export class KeycloakHelper {
 
     }
 
-    // TODO: finalize
-    public evaluate(payload) {
+    public evaluate(realmName: string, clientUID: string, resource: IResourceRepresentation, userUID: string) {
 
         return this.getAuth().then((auth) => {
 
+            const payload: IEvaluationPayload = {
+                resources: [resource],
+                context: { attributes: {} },
+                roleIds: [],
+                clientId: clientUID,
+                userId: userUID,
+                entitlements: false,
+            };
+
             const options = {
                 method: "POST",
-                uri: `${this.authSettings.baseUrl}/admin/realms/library-poc/clients/
-                    clientId/authz/resource-server/policy/evaluate`,
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}`
+                        + `/clients/${clientUID}/authz/resource-server/policy/evaluate`,
                 auth,
                 body: payload,
                 json: true,
             };
-
-            console.log(options);
 
             return request(options);
         });
