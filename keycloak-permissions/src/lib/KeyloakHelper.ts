@@ -1,13 +1,13 @@
-import * as request from 'request-promise';
-import { AuthSettings } from './AuthSettings';
-import { ClientRepresentation } from './representations/ClientRepresentation';
-import * as kca from 'keycloak-admin-client';
-import * as _ from 'lodash';
-import { RoleRepresentation } from './representations/RealmRoleRepresentation';
-import { PolicyRoleBasedRepresentation } from './representations/PolicyRoleBasedRepresentation';
-import { ResourceRepresentation } from './representations/ResourceRepresentation';
-import { ResourcePermissionRepresentation } from './representations/ResourcePermissionRepresentation';
-import { UserRepresentation } from './representations/UserRepresentation';
+import * as kca from "keycloak-admin-client";
+import * as _ from "lodash";
+import * as request from "request-promise";
+import { AuthSettings } from "./AuthSettings";
+import { ClientRepresentation } from "./representations/ClientRepresentation";
+import { PolicyRoleBasedRepresentation } from "./representations/PolicyRoleBasedRepresentation";
+import { RoleRepresentation } from "./representations/RealmRoleRepresentation";
+import { ResourcePermissionRepresentation } from "./representations/ResourcePermissionRepresentation";
+import { ResourceRepresentation } from "./representations/ResourceRepresentation";
+import { UserRepresentation } from "./representations/UserRepresentation";
 
 export class KeycloakHelper {
 
@@ -35,10 +35,12 @@ export class KeycloakHelper {
         });
     }
 
-    public getClientsList(realmName: string, clientId: string): Promise<ClientRepresentation[]> {
+    public getClient(realmName: string, clientId: string): Promise<ClientRepresentation> {
         return kca(this.authSettings).then((client) => {
             const options = { clientId };
-            return client.clients.find(realmName, options);
+            return client.clients.find(realmName, options).then((clientList) => {
+                return clientList[0];
+            });
         });
     }
 
@@ -84,11 +86,12 @@ export class KeycloakHelper {
                         policyRepr: PolicyRoleBasedRepresentation) {
         return this.getAuth().then((auth) => {
             const options = {
-                method: 'POST',
-                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/role`,
-                auth: auth,
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}`
+                + `/authz/resource-server/policy/role`,
+                auth,
                 body: policyRepr,
-                json: true
+                json: true,
             };
             return request(options);
         });
@@ -99,11 +102,12 @@ export class KeycloakHelper {
 
         return this.getAuth().then((auth) => {
             const options = {
-                method: 'POST',
-                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/permission/resource`,
-                auth: auth,
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}`
+                + `/authz/resource-server/permission/resource`,
+                auth,
                 body: permissionRepr,
-                json: true
+                json: true,
             };
             return request(options);
         });
@@ -113,22 +117,24 @@ export class KeycloakHelper {
 
         return this.getAuth().then((auth) => {
             const options = {
-                method: 'POST',
-                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/resource`,
-                auth: auth,
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}` +
+                `/authz/resource-server/resource`,
+                auth,
                 body: resourceRepr,
-                json: true
+                json: true,
             };
             return request(options);
         });
     }
 
-    public createPolicyFor(realmName: string, policyName: string, clientName: string, realmRole: string, clientRole: string): Promise<any> {
+    public createPolicyFor(realmName: string, policyName: string, clientName: string, realmRole: string,
+                           clientRole: string): Promise<any> {
 
-        return this.getClientsList(realmName, clientName)
+        return this.getClient(realmName, clientName)
             .then((clientsInfo) => {
                 // find client id
-                return { clientUID: clientsInfo[0].id as any };
+                return { clientUID: clientsInfo.id as any };
             })
             .then((data: any) => {
                 // find realm role id
@@ -148,8 +154,8 @@ export class KeycloakHelper {
 
                 return this.createPolicy(realmName, data.clientUID,
                     {
-                        type: 'role',
-                        logic: 'POSITIVE',
+                        type: "role",
+                        logic: "POSITIVE",
                         name: policyName,
                         roles: [
                             { id: data.realmRoleId, required: true },
@@ -159,14 +165,16 @@ export class KeycloakHelper {
             });
     }
 
-    public getResourceInformations(realmName: string, clientUID: string, resourceUri: string): Promise<ResourceRepresentation> {
+    public getResourceInformations(realmName: string, clientUID: string,
+                                   resourceUri: string): Promise<ResourceRepresentation> {
 
         return this.getAuth().then((auth) => {
             const options = {
-                method: 'GET',
-                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/resource?deep=false&first=0&max=20&name=&uri=${resourceUri}`,
-                auth: auth,
-                json: true
+                method: "GET",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz`
+                + `/resource-server/resource?deep=false&first=0&max=20&name=&uri=${resourceUri}`,
+                auth,
+                json: true,
             };
             return request(options).then((resources) => {
                 return resources[0];
@@ -175,14 +183,16 @@ export class KeycloakHelper {
 
     }
 
-    public getPoliciesInformations(realmName: string, clientUID: string, policyName: string): Promise<ResourcePermissionRepresentation> {
+    public getPoliciesInformations(realmName: string, clientUID: string,
+                                   policyName: string): Promise<ResourcePermissionRepresentation> {
 
         return this.getAuth().then((auth) => {
             const options = {
-                method: 'GET',
-                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy?first=0&max=20&name=${policyName}&permission=false`,
-                auth: auth,
-                json: true
+                method: "GET",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}`
+                + `/authz/resource-server/policy?first=0&max=20&name=${policyName}&permission=false`,
+                auth,
+                json: true,
             };
             return request(options).then((policies) => {
                 return policies[0];
@@ -191,12 +201,13 @@ export class KeycloakHelper {
 
     }
 
-    public createPermissionFor(realmName: string, clientName: string, permissionName: string, resourceUri: string, policyName: string) {
+    public createPermissionFor(realmName: string, clientName: string, permissionName: string,
+                               resourceUri: string, policyName: string) {
 
-        return this.getClientsList(realmName, clientName)
+        return this.getClient(realmName, clientName)
             .then((clientsInfo) => {
                 // find client id
-                return { clientUID: clientsInfo[0].id as any };
+                return { clientUID: clientsInfo.id as any };
             })
             .then((data: any) => {
                 // find resource uid
@@ -215,14 +226,14 @@ export class KeycloakHelper {
             .then((data) => {
                 return this.createPermission(realmName, data.clientUID,
                     {
-                        type: 'resource',
-                        logic: 'POSITIVE',
-                        decisionStrategy: 'UNANIMOUS',
+                        type: "resource",
+                        logic: "POSITIVE",
+                        decisionStrategy: "UNANIMOUS",
                         name: permissionName,
                         resources: [data.resourceId], // TODO: try to allocate more resources in order to create
                                                       // less permissions ?
-                        policies: [data.policyId]
-                    }
+                        policies: [data.policyId],
+                    },
                 );
             });
 
@@ -240,10 +251,10 @@ export class KeycloakHelper {
         return this.getAuth().then((auth) => {
 
             const options = {
-                method: 'GET',
+                method: "GET",
                 uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users?first=0&max=20&search=${userId}`,
-                auth: auth,
-                json: true
+                auth,
+                json: true,
             };
 
             return request(options).then((users) => {
@@ -258,20 +269,38 @@ export class KeycloakHelper {
     public bindRealmRoleToUser(realmName: string, userId: string, realmRoleName: string) {
 
         return this.getAuth().then((auth) => {
-
             return this.getRealmRole(realmName, realmRoleName).then((role) => {
 
                 const options = {
-                    method: 'POST',
+                    method: "POST",
                     uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users/${userId}/role-mappings/realm`,
-                    auth: auth,
+                    auth,
                     body: [role],
-                    json: true
+                    json: true,
                 };
 
                 return request(options);
             });
+        });
 
+    }
+
+    public bindClientRoleToUser(realmName: string, clientUID, userId: string, clientRoleName: string) {
+
+        return this.getAuth().then((auth) => {
+            return this.getClientRole(realmName, clientUID, clientRoleName).then((role) => {
+
+                const options = {
+                    method: "POST",
+                    uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}`
+                    + `/users/${userId}/role-mappings/clients/${clientUID}`,
+                    auth,
+                    body: [role],
+                    json: true,
+                };
+
+                return request(options);
+            });
         });
 
     }
@@ -282,11 +311,12 @@ export class KeycloakHelper {
         return this.getAuth().then((auth) => {
 
             const options = {
-                method: 'POST',
-                uri: `${this.authSettings.baseUrl}/admin/realms/library-poc/clients/e47e0f0d-2932-4d7f-8533-1f7eac9305cf/authz/resource-server/policy/evaluate`,
-                auth: auth,
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms/library-poc/clients/
+                    clientId/authz/resource-server/policy/evaluate`,
+                auth,
                 body: payload,
-                json: true
+                json: true,
             };
 
             console.log(options);
@@ -295,14 +325,13 @@ export class KeycloakHelper {
         });
     }
 
-
     private getToken() {
 
         const options = {
-            method: 'POST',
+            method: "POST",
             uri: `${this.authSettings.baseUrl}/realms/master/protocol/openid-connect/token`,
             form: this.authSettings,
-            json: true
+            json: true,
         };
 
         return request(options).then((data) => {
@@ -313,7 +342,7 @@ export class KeycloakHelper {
     private getAuth() {
         return this.getToken().then((accessToken) => {
             return {
-                bearer: accessToken
+                bearer: accessToken,
             };
         });
     }
