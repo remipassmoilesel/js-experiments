@@ -1,5 +1,5 @@
 
-export interface RoleRepresentation {
+export interface IRoleRepresentation {
     id?: string;
     name: string;
     scopeParamRequired: string;

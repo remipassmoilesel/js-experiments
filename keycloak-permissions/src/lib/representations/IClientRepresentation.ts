@@ -1,4 +1,4 @@
-export interface ClientRepresentation {
+export interface IClientRepresentation {
     id?: string;
     clientId: string;
     name: string;

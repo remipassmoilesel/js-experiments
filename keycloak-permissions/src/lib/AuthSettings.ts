@@ -1,4 +1,4 @@
-export interface AuthSettings {
+export interface IAuthSettings {
     baseUrl: string;
     username: string;
     password: string;

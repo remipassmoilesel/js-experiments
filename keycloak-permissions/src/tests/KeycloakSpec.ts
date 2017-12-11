@@ -1,7 +1,7 @@
 import * as chai from "chai";
 import * as _ from "lodash";
 import "mocha";
-import { AuthSettings } from "../lib/AuthSettings";
+import { IAuthSettings } from "../lib/AuthSettings";
 import { KeycloakHelper } from "../lib/KeyloakHelper";
 
 const assert = chai.assert;
@@ -11,7 +11,7 @@ describe("Keycloak test", function () {
     this.timeout(5000);
 
     const keycloakBaseUrl = "http://172.17.0.3:8080/auth";
-    const authSettings: AuthSettings = {
+    const authSettings: IAuthSettings = {
         baseUrl: keycloakBaseUrl,
         username: "keycloak",
         password: "keycloak",
@@ -304,37 +304,22 @@ describe("Keycloak test", function () {
 
     });
 
-
-    it.skip("evaluate should success", () => {
-
-        // TODO: finalize
-
-        // const config: AuthSettings = {
-        //     evaluatePath: '/admin/realms/library-poc/clients/e47e0f0d-2932-4d7f-8533-1f7eac9305cf/authz/resource-server/policy/evaluate',
-        //     baseUrl: keycloakBaseUrl,
-        //     username: 'keycloak',
-        //     password: 'keycloak',
-        //     grant_type: 'password',
-        //     client_id: 'admin-cli'
-        // };
-        //
-        // const payload = {
-        //     'resources': [{
-        //         'name': 'library_a',
-        //         'uri': '/library-a',
-        //         'type': 'library-api:library',
-        //         'owner': { 'id': 'e47e0f0d-2932-4d7f-8533-1f7eac9305cf', 'name': 'library_api' },
-        //         '_id': '6ae3b27b-4b43-413b-b5f9-81d79a89a189',
-        //         'scopes': ['Edit']
+    it("Evaluate should success", () => {
+        // const a = {
+        //     resources: [{
+        //         name: "library-A",
+        //         uri: "uri:id:library-A",
+        //         owner: { id: "d159e9a7-0755-4c3c-86e8-23083c7727a3", name: "000-library-client-a" },
+        //         _id: "b242e010-e9a5-41c9-ac70-dd2dfc5cfc6b",
+        //         scopes: [],
         //     }],
-        //     'context': { 'attributes': {} },
-        //     'roleIds': ['library_administrator'],
-        //     'clientId': 'e47e0f0d-2932-4d7f-8533-1f7eac9305cf',
-        //     'userId': '2c594d05-6ecb-4f86-9df8-ca9933aec6ba',
-        //     'entitlements': false
+        //     context: { attributes: {} },
+        //     roleIds: [],
+        //     clientId: "d159e9a7-0755-4c3c-86e8-23083c7727a3",
+        //     userId: "7902ebca-2afd-4a83-9383-b3ff327e97cb",
+        //     entitlements: false,
         // };
-        //
-        // return helper.evaluate(config, payload);
+        // return helper.evaluate(realmName, users[0].id);
 
     });
 

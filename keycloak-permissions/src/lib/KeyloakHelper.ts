@@ -1,19 +1,19 @@
 import * as kca from "keycloak-admin-client";
 import * as _ from "lodash";
 import * as request from "request-promise";
-import { AuthSettings } from "./AuthSettings";
-import { ClientRepresentation } from "./representations/ClientRepresentation";
-import { PolicyRoleBasedRepresentation } from "./representations/PolicyRoleBasedRepresentation";
-import { RoleRepresentation } from "./representations/RealmRoleRepresentation";
-import { ResourcePermissionRepresentation } from "./representations/ResourcePermissionRepresentation";
-import { ResourceRepresentation } from "./representations/ResourceRepresentation";
-import { UserRepresentation } from "./representations/UserRepresentation";
+import { IAuthSettings } from "./AuthSettings";
+import { IClientRepresentation } from "./representations/IClientRepresentation";
+import { IPolicyRoleBasedRepresentation } from "./representations/IPolicyRoleBasedRepresentation";
+import { IRoleRepresentation } from "./representations/IRealmRoleRepresentation";
+import { IResourcePermissionRepresentation } from "./representations/IResourcePermissionRepresentation";
+import { IResourceRepresentation } from "./representations/IResourceRepresentation";
+import { IUserRepresentation } from "./representations/IUserRepresentation";
 
 export class KeycloakHelper {
 
-    private authSettings: AuthSettings;
+    private authSettings: IAuthSettings;
 
-    constructor(settings: AuthSettings) {
+    constructor(settings: IAuthSettings) {
         this.authSettings = settings;
     }
 
@@ -23,19 +23,19 @@ export class KeycloakHelper {
         });
     }
 
-    public createClient(realmName: string, clientRepr: ClientRepresentation): Promise<any> {
+    public createClient(realmName: string, clientRepr: IClientRepresentation): Promise<any> {
         return kca(this.authSettings).then((client) => {
             return client.clients.create(realmName, clientRepr);
         });
     }
 
-    public createRealmRole(realmName: string, roleRepr: RoleRepresentation): Promise<any> {
+    public createRealmRole(realmName: string, roleRepr: IRoleRepresentation): Promise<any> {
         return kca(this.authSettings).then((client) => {
             return client.realms.roles.create(realmName, roleRepr);
         });
     }
 
-    public getClient(realmName: string, clientId: string): Promise<ClientRepresentation> {
+    public getClient(realmName: string, clientId: string): Promise<IClientRepresentation> {
         return kca(this.authSettings).then((client) => {
             const options = { clientId };
             return client.clients.find(realmName, options).then((clientList) => {
@@ -45,21 +45,21 @@ export class KeycloakHelper {
     }
 
     public createClientRole(realmName: string, clientUID: string,
-                            roleRepr: RoleRepresentation) {
+                            roleRepr: IRoleRepresentation) {
         return kca(this.authSettings)
             .then((client) => {
                 return client.clients.roles.create(realmName, clientUID, roleRepr);
             });
     }
 
-    public getRealmRolesList(realmName: string): Promise<RoleRepresentation[]> {
+    public getRealmRolesList(realmName: string): Promise<IRoleRepresentation[]> {
         return kca(this.authSettings)
             .then((client) => {
                 return client.realms.roles.find(realmName);
             });
     }
 
-    public getRealmRole(realmName: string, roleName: string): Promise<RoleRepresentation> {
+    public getRealmRole(realmName: string, roleName: string): Promise<IRoleRepresentation> {
         return this.getRealmRolesList(realmName).then((roles) => {
             return _.filter(roles, (r) => {
                 return r.name === roleName;
@@ -67,7 +67,7 @@ export class KeycloakHelper {
         });
     }
 
-    public getClientRolesList(realmName: string, clientUID: string): Promise<RoleRepresentation[]> {
+    public getClientRolesList(realmName: string, clientUID: string): Promise<IRoleRepresentation[]> {
         return kca(this.authSettings)
             .then((client) => {
                 return client.clients.roles.find(realmName, clientUID);
@@ -83,7 +83,7 @@ export class KeycloakHelper {
     }
 
     public createPolicy(realmName: string, clientUID: string,
-                        policyRepr: PolicyRoleBasedRepresentation) {
+                        policyRepr: IPolicyRoleBasedRepresentation) {
         return this.getAuth().then((auth) => {
             const options = {
                 method: "POST",
@@ -98,7 +98,7 @@ export class KeycloakHelper {
     }
 
     public createPermission(realmName: string, clientUID: string,
-                            permissionRepr: ResourcePermissionRepresentation) {
+                            permissionRepr: IResourcePermissionRepresentation) {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -113,7 +113,7 @@ export class KeycloakHelper {
         });
     }
 
-    public createResource(realmName: string, clientUID: string, resourceRepr: ResourceRepresentation) {
+    public createResource(realmName: string, clientUID: string, resourceRepr: IResourceRepresentation) {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -166,7 +166,7 @@ export class KeycloakHelper {
     }
 
     public getResourceInformations(realmName: string, clientUID: string,
-                                   resourceUri: string): Promise<ResourceRepresentation> {
+                                   resourceUri: string): Promise<IResourceRepresentation> {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -184,7 +184,7 @@ export class KeycloakHelper {
     }
 
     public getPoliciesInformations(realmName: string, clientUID: string,
-                                   policyName: string): Promise<ResourcePermissionRepresentation> {
+                                   policyName: string): Promise<IResourcePermissionRepresentation> {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -239,14 +239,14 @@ export class KeycloakHelper {
 
     }
 
-    public createUser(realmName: string, user: UserRepresentation) {
+    public createUser(realmName: string, user: IUserRepresentation) {
         return kca(this.authSettings)
             .then((client) => {
                 client.users.create(realmName, user);
             });
     }
 
-    public findUser(realmName: string, userId: string): Promise<UserRepresentation> {
+    public findUser(realmName: string, userId: string): Promise<IUserRepresentation> {
 
         return this.getAuth().then((auth) => {
 

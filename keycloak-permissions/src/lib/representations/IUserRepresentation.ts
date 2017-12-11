@@ -1,4 +1,4 @@
-export interface UserRepresentation {
+export interface IUserRepresentation {
     id?: string;
     enabled: boolean;
     attributes: any;
