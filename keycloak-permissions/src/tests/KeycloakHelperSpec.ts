@@ -6,7 +6,7 @@ import { KeycloakHelper } from "../lib/KeyloakHelper";
 
 const assert = chai.assert;
 
-describe("Keycloak helper test", function () {
+describe.only("Keycloak helper test", function () {
 
     this.timeout(5000);
 
@@ -332,6 +332,15 @@ describe("Keycloak helper test", function () {
                 return helper.evaluate(realmName, data.clientUID, data.resource, data.user.id);
             });
 
+    });
+
+    it("Create JS policy should success", () => {
+        return helper.getClient(realmName, clientName)
+            .then((clientsInfo) => {
+                const clientUID: string = clientsInfo.id as any;
+                return helper.createJsPolicy(realmName, clientUID, "JS policy one",
+                    "$evaluation.grant()");
+            });
     });
 
 });

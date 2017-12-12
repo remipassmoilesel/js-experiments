@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import * as request from "request-promise";
 import { IAuthSettings } from "./AuthSettings";
 import { IEvaluationPayload } from "./IEvaluationPayload";
+import { IJsPolicyPayload } from "./IJsPolicyPayload";
 import { IClientRepresentation } from "./representations/IClientRepresentation";
 import { IPolicyRoleBasedRepresentation } from "./representations/IPolicyRoleBasedRepresentation";
 import { IRoleRepresentation } from "./representations/IRealmRoleRepresentation";
@@ -322,7 +323,7 @@ export class KeycloakHelper {
             const options = {
                 method: "POST",
                 uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}`
-                        + `/clients/${clientUID}/authz/resource-server/policy/evaluate`,
+                + `/clients/${clientUID}/authz/resource-server/policy/evaluate`,
                 auth,
                 body: payload,
                 json: true,
@@ -330,6 +331,31 @@ export class KeycloakHelper {
 
             return request(options);
         });
+    }
+
+    public createJsPolicy(realmName: string, clientUID: string, policyName: string, policyJsCode: string) {
+
+        return this.getAuth().then((auth) => {
+
+            const payload: IJsPolicyPayload = {
+                type: "js",
+                logic: "POSITIVE",
+                name: policyName,
+                description: policyName,
+                code: policyJsCode,
+            };
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}`
+                + `/clients/${clientUID}/authz/resource-server/policy/js`,
+                auth,
+                body: payload,
+                json: true,
+            };
+
+            return request(options);
+        });
+
     }
 
     private getToken() {
