@@ -28,10 +28,23 @@ Soit une création de:
 
 ## Déroulement
 
+Le code de création n'est pas optimisé. Etapes:
+
+    wait(this.createRealm());
+    wait(this.createClient());
+    wait(this.createResources());
+    wait(this.createRealmRoles());
+    wait(this.createClientRoles());
+    wait(this.createPolicies());
+    wait(this.createPermissions());
+    wait(this.createUsers());
+    wait(this.mapClientRoles());
+    wait(this.mapRealmRoles());
+
 Keycloak dans un conteneur Docker, lié à une base de données PostgreSQL en conteneur Docker également.
 
 Scénario lancé à 19h00, non términé le lendemain à 10h19 (~9h), création des politiques en cours à la 1560e.
 
 Ralentissements exponentiels dans toute l'API REST. Scénario non viable.
 
-  
+Le même scénario avec 100 ressources et 200 utilisateurs prend 2h00.

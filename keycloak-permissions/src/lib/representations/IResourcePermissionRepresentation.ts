@@ -4,6 +4,7 @@ export interface IResourcePermissionRepresentation {
     type: "resource";
     logic: "POSITIVE";
     decisionStrategy: "UNANIMOUS";
-    resources: string[];
+    resources?: string[];
     policies: string[];
+    resourceType?: string;
 }

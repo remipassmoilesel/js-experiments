@@ -185,8 +185,8 @@ export class KeycloakHelper {
 
     }
 
-    public getPoliciesInformations(realmName: string, clientUID: string,
-                                   policyName: string): Promise<IResourcePermissionRepresentation> {
+    public getPolicy(realmName: string, clientUID: string,
+                     policyName: string): Promise<IResourcePermissionRepresentation> {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -220,7 +220,7 @@ export class KeycloakHelper {
             })
             .then((data: any) => {
                 // find policy uid
-                return this.getPoliciesInformations(realmName, data.clientUID, policyName).then((policyInfos) => {
+                return this.getPolicy(realmName, data.clientUID, policyName).then((policyInfos) => {
                     data.policyId = policyInfos.id;
                     return data;
                 });
@@ -344,6 +344,7 @@ export class KeycloakHelper {
                 description: policyName,
                 code: policyJsCode,
             };
+
             const options = {
                 method: "POST",
                 uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}`

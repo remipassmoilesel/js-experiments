@@ -5,4 +5,5 @@ export interface IResourceRepresentation {
     scopes: any[];
     uri: string;
     owner?: any;
+    type?: string;
 }
