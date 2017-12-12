@@ -1,31 +1,25 @@
 //
-// POLICY FOR ADMIN
+// POLICY FOR ADMINS
 //
 
-var GROUP_PREFIX = "admin_";
-print("\n\nPolicy evaluation with group prefix: " + GROUP_PREFIX);
+var ROLE_PREFIX = "admin_";
+print("\n\nPolicy evaluation with group prefix: " + ROLE_PREFIX);
 
 var identity = $evaluation.getContext().getIdentity();
-print("Identity: " + identity);
+print("Identity: " + identity.getId());
 
 var attributes = identity.getAttributes();
 print("Attributes: " + attributes.toMap());
-
-var groups = attributes.getValue("groups");
-print("Groups: " + groups);
 
 var resource = $evaluation.getPermission().getResource();
 var resUri = resource.getUri();
 print("Resource uri: " + resUri);
 
-if (!groups) {
-    print("No groups found, deny");
-    $evaluation.deny();
+var expectedRole = ROLE_PREFIX + resUri;
+print('Expected role: ' + expectedRole);
+
+if (identity.hasRealmRole(expectedRole)) {
+    $evaluation.grant();
 } else {
-    var expectedGroup = GROUP_PREFIX + resUri;
-    if (attributes.getValue("groups").contains(expectedGroup)) {
-        $evaluation.grant();
-    } else {
-        $evaluation.deny();
-    }
+    $evaluation.deny();
 }

@@ -4,6 +4,8 @@ import * as _ from "lodash";
 import "mocha";
 import { IAuthSettings } from "../lib/AuthSettings";
 import { KeycloakHelper } from "../lib/KeyloakHelper";
+import { IResourceRepresentation } from "../lib/representations/IResourceRepresentation";
+import { IUserRepresentation } from "../lib/representations/IUserRepresentation";
 
 const assert = chai.assert;
 
@@ -36,16 +38,16 @@ describe.only("Keycloak permissions test", function () {
         "library-B",
     ];
 
-    const realmRoles = ["admin_library-A", "admin_library-B", "user_library-A", "user_library-B"];
+    const roles = ["admin_library-A", "admin_library-B", "user_library-A", "user_library-B"];
 
     const users = [
         {
             name: "userA",
-            roles: ["admin_library-A", "user_library-B"],
+            roles: ["admin_library-A", "user_library-A", "user_library-B"],
         },
         {
             name: "userB",
-            roles: ["admin_library-B", "user_library-A"],
+            roles: ["admin_library-B", "user_library-B", "user_library-A"],
         },
     ];
 
@@ -81,7 +83,7 @@ describe.only("Keycloak permissions test", function () {
                     clientUID = data.id;
                 });
             })
-            .then((data) => {
+            .then(() => {
                 // then create resources
                 console.log("Creating resources");
 
@@ -98,16 +100,15 @@ describe.only("Keycloak permissions test", function () {
                 return Promise.all(promises);
             })
             .then(() => {
-                // then create realm roles
-                console.log("Creating realm roles");
+                // then create roles
+                console.log("Creating roles");
 
                 const promises: Array<Promise<any>> = [];
-                _.forEach(realmRoles, (roleName) => {
-                    const p = helper.createRealmRole(realmName, {
+                _.forEach(roles, (roleName: string) => {
+                    promises.push(helper.createRealmRole(realmName, {
                         name: roleName,
                         scopeParamRequired: "",
-                    });
-                    promises.push(p);
+                    }));
                 });
                 return Promise.all(promises);
             })
@@ -197,7 +198,7 @@ describe.only("Keycloak permissions test", function () {
             })
             .then(() => {
                 // then map roles
-                console.log("Mappign realm roles");
+                console.log("Mapping roles");
 
                 const promises: Array<Promise<any>> = [];
                 _.forEach(users, (user) => {
@@ -205,7 +206,13 @@ describe.only("Keycloak permissions test", function () {
                         helper.getUser(realmName, user.name)
                             .then((userInfos) => {
                                 _.forEach(user.roles, (role) => {
-                                    promises.push(helper.bindRealmRoleToUser(realmName, (userInfos.id as any), role));
+                                    promises.push(
+                                        helper.bindRealmRoleToUser(
+                                            realmName,
+                                            (userInfos.id as any),
+                                            role,
+                                        ),
+                                    );
                                 });
                             }),
                     );
@@ -224,31 +231,38 @@ describe.only("Keycloak permissions test", function () {
         return prepareRealm();
     });
 
-    it("User A should administrate ", () => {
+    const evaluate = (resourceName: string, userName: string, status: "PERMIT" | "DENY") => {
 
-        // return helper.getClient(realmName, clientName)
-        //     .then((clientsInfo) => {
-        //         const clientUID: string = clientsInfo.id as any;
-        //         return { clientUID };
-        //     })
-        //     .then((data: any) => {
-        //         return helper.getResource(realmName, data.clientUID, resources[0])
-        //             .then((res) => {
-        //                 data.resource = res;
-        //                 return data;
-        //             });
-        //     })
-        //     .then((data: any) => {
-        //         return helper.getUser(realmName, users[0].id)
-        //             .then((user) => {
-        //                 data.user = user;
-        //                 return data;
-        //             });
-        //     })
-        //     .then((data: any) => {
-        //         return helper.evaluate(realmName, data.clientUID, data.resource, data.user.id);
-        //     });
+        let resource: IResourceRepresentation;
+        let user: IUserRepresentation;
+        return helper.getResource(realmName, clientUID, resourceName)
+            .then((res) => {
+                resource = res;
+            })
+            .then(() => {
+                return helper.getUser(realmName, userName)
+                    .then((u) => {
+                        user = u;
+                    });
+            })
+            .then(() => {
+                return helper.evaluate(realmName, clientUID, resource, (user.id as any))
+                    .then((evaluation) => {
+                        assert.isTrue(evaluation.results.length > 0);
+                        _.forEach(evaluation.results, (rslt) => {
+                            assert.equal(rslt.status, status);
+                        });
+                    });
+            });
 
+    };
+
+    it("User A should be authorized to administrate library A", () => {
+        return evaluate(resources[0], users[0].name, "PERMIT");
+    });
+
+    it("User B should be authorized to administrate library B", () => {
+        return evaluate(resources[1], users[1].name, "PERMIT");
     });
 
 });

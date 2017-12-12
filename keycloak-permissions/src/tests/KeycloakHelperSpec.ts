@@ -68,7 +68,7 @@ describe("Keycloak helper test", function () {
         "library-C",
     ];
 
-    it("Create a realm should success", () => {
+    it("Create realm should success", () => {
         return helper.createRealm(realmName);
     });
 
