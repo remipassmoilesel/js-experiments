@@ -21,8 +21,23 @@ export class KeycloakHelper {
     }
 
     public createRealm(realmName: string): Promise<any> {
-        return kca(this.authSettings).then((client) => {
-            return client.realms.create({ realm: realmName });
+        return this.getAuth().then((auth) => {
+
+            const payload = {
+                enabled: true,
+                id: realmName,
+                realm: realmName,
+            };
+
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms`,
+                auth,
+                body: payload,
+                json: true,
+            };
+            return request(options);
+
         });
     }
 
@@ -418,7 +433,7 @@ export class KeycloakHelper {
     public getGroup(realmName: string, groupName: string): Promise<IGroupRepresentation> {
         return this.getGroups(realmName).then((groups: IGroupRepresentation[]) => {
             return _.filter(groups, (gr: IGroupRepresentation) => {
-               return gr.name === groupName;
+                return gr.name === groupName;
             })[0];
         });
     }
