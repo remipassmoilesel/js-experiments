@@ -30,8 +30,8 @@ describe("Keycloak helper test", function () {
     const authorizedUserRoleName = "authorized_user";
 
     const users = [
-        { id: "user1", roles: [] },
-        { id: "user2", roles: [] },
+        { id: "user1", groups: [] },
+        { id: "user2", groups: [] },
     ];
 
     const getAdminRoleName = (resourceName) => {
@@ -342,6 +342,27 @@ describe("Keycloak helper test", function () {
                     `// A comment
                                 // An other comment
                                 $evaluation.grant()`);
+            });
+    });
+
+    it("Create group should success", () => {
+        return helper.createGroup(realmName, "test-group");
+    });
+
+    it("Bind group should success", () => {
+        return helper.getGroup(realmName, "test-group")
+            .then((group) => {
+                return { groupId: group.id };
+            })
+            .then((data: any) => {
+                return helper.getUser(realmName, users[0].id)
+                    .then((user) => {
+                        data.userId = user.id;
+                        return data;
+                    });
+            })
+            .then((data) => {
+                return helper.bindGroup(realmName, data.userId, data.groupId);
             });
     });
 

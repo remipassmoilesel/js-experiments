@@ -5,6 +5,7 @@ import { IAuthSettings } from "./AuthSettings";
 import { IEvaluationPayload } from "./IEvaluationPayload";
 import { IJsPolicyPayload } from "./IJsPolicyPayload";
 import { IClientRepresentation } from "./representations/IClientRepresentation";
+import { IGroupRepresentation } from "./representations/IGroupRepresentation";
 import { IPolicyRoleBasedRepresentation } from "./representations/IPolicyRoleBasedRepresentation";
 import { IRoleRepresentation } from "./representations/IRealmRoleRepresentation";
 import { IResourcePermissionRepresentation } from "./representations/IResourcePermissionRepresentation";
@@ -267,6 +268,45 @@ export class KeycloakHelper {
 
     }
 
+    public createGroup(realmName: string, groupName: string): Promise<any> {
+
+        return this.getAuth().then((auth) => {
+
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/groups`,
+                body: { name: groupName },
+                auth,
+                json: true,
+            };
+
+            return request(options);
+        });
+
+    }
+
+    public bindGroup(realmName: string, userUID: string, groupUID: string): Promise<any> {
+
+        return this.getAuth().then((auth) => {
+
+            const payload = {
+                realm: realmName,
+                userId: userUID,
+                groupId: groupUID,
+            };
+
+            const options = {
+                method: "PUT",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/users/${userUID}/groups/${groupUID}`,
+                body: payload,
+                auth,
+                json: true,
+            };
+
+            return request(options);
+        });
+
+    }
 
     public bindRealmRoleToUser(realmName: string, userUID: string, realmRoleName: string) {
 
@@ -357,6 +397,30 @@ export class KeycloakHelper {
             return request(options);
         });
 
+    }
+
+    public getGroups(realmName: string): Promise<IGroupRepresentation[]> {
+
+        return this.getAuth().then((auth) => {
+
+            const options = {
+                method: "GET",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/groups`,
+                auth,
+                json: true,
+            };
+
+            return request(options);
+        });
+
+    }
+
+    public getGroup(realmName: string, groupName: string): Promise<IGroupRepresentation> {
+        return this.getGroups(realmName).then((groups: IGroupRepresentation[]) => {
+            return _.filter(groups, (gr: IGroupRepresentation) => {
+               return gr.name === groupName;
+            })[0];
+        });
     }
 
     private getToken() {
