@@ -265,4 +265,12 @@ describe.only("Keycloak permissions test", function () {
         return evaluate(resources[1], users[1].name, "PERMIT");
     });
 
+    it("User A should not be authorized to administrate library B", () => {
+        return evaluate(resources[0], users[0].name, "DENY");
+    });
+
+    it("User B should not be authorized to administrate library A", () => {
+        return evaluate(resources[1], users[1].name, "DENY");
+    });
+
 });
