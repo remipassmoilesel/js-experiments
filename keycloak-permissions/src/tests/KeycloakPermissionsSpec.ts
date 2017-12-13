@@ -52,6 +52,9 @@ describe.only("Keycloak permissions test", function () {
         },
     ];
 
+    const adminScopeName = "ADMINISTRATE";
+    const useScopeName = "USE";
+
     const getResourceUri = (resourceName) => {
         return `${resourceName}`;
     };
@@ -60,9 +63,13 @@ describe.only("Keycloak permissions test", function () {
 
     const prepareRealm = () => {
 
-        // code is not required in order to avoid errors
-        let userJsPolicyCode: string = fs.readFileSync("src/tests/javascript-policy-user.js").toString();
-        let adminJsPolicyCode: string = fs.readFileSync("src/tests/javascript-policy-admin.js").toString();
+        // code is not required in order to avoid errors for undefined variables
+        let policyCode = fs.readFileSync("src/tests/javascript-policy.js").toString();
+        let userJsPolicyVariables: string = fs.readFileSync("src/tests/javascript-policy-user.js").toString();
+        let adminJsPolicyVariables: string = fs.readFileSync("src/tests/javascript-policy-admin.js").toString();
+        let userJsPolicyCode: string = userJsPolicyVariables + policyCode;
+        let adminJsPolicyCode: string = adminJsPolicyVariables + policyCode;
+
 
         // create realm
         console.log("Creating realm");
@@ -80,6 +87,11 @@ describe.only("Keycloak permissions test", function () {
                 }));
         clientUID = client.id;
 
+        // then create scopes
+        console.log("Creating scopes");
+        const adminScope = wait(helper.createScope(realmName, clientUID, adminScopeName));
+        const useScope = wait(helper.createScope(realmName, clientUID, useScopeName));
+
         // then create resources
         console.log("Creating resources");
 
@@ -96,7 +108,7 @@ describe.only("Keycloak permissions test", function () {
         console.log("Creating roles");
 
         _.forEach(roles, (roleName: string) => {
-            wait(helper.createRealmRole(realmName, {
+            wait(helper.createClientRole(realmName, clientUID, {
                 name: roleName,
                 scopeParamRequired: "",
             }));
@@ -104,7 +116,6 @@ describe.only("Keycloak permissions test", function () {
 
         // then create policies
         console.log("Creating js policies");
-
 
         const adminJsPolicy: any = wait(helper.createJsPolicy(
                 realmName,
@@ -150,7 +161,6 @@ describe.only("Keycloak permissions test", function () {
         // then create users
         console.log("Creating users");
 
-
         _.forEach(users, (user) => {
             wait(helper.createUser(realmName, {
                 enabled: true,
@@ -161,14 +171,14 @@ describe.only("Keycloak permissions test", function () {
         });
 
         // then map roles
-        console.log("Mapping roles");
-
+        console.log("Mapping client roles");
 
         _.forEach(users, (user) => {
             const userInfos = wait(helper.getUser(realmName, user.name));
             _.forEach(user.roles, (role) => {
-                wait(helper.bindRealmRoleToUser(
+                wait(helper.mapClientRoleToUser(
                     realmName,
+                    clientUID,
                     (userInfos.id as any),
                     role,
                 ));

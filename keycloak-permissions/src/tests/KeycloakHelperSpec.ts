@@ -277,7 +277,7 @@ describe("Keycloak helper test", function () {
         _.forEach(users, (user) => {
             promises.push(
                 helper.getUser(realmName, user.id).then((userInfo) => {
-                    return helper.bindRealmRoleToUser(realmName, (userInfo.id as any), getAdminRoleName(resources[0]));
+                    return helper.mapRealmRoleToUser(realmName, (userInfo.id as any), getAdminRoleName(resources[0]));
                 }),
             );
         });
@@ -295,7 +295,7 @@ describe("Keycloak helper test", function () {
             _.forEach(users, (user) => {
                 promises.push(
                     helper.getUser(realmName, user.id).then((userInfo) => {
-                        return helper.bindClientRoleToUser(realmName, clientUID, (userInfo.id as any),
+                        return helper.mapClientRoleToUser(realmName, clientUID, (userInfo.id as any),
                             getAdminRoleName(resources[0]));
                     }),
                 );

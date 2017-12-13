@@ -82,7 +82,7 @@ export class KeycloakFlooder {
         const userUID: string = (user.id as any);
 
         _.forEach(roles, (role: string) => {
-            wait(this.helper.bindRealmRoleToUser(
+            wait(this.helper.mapRealmRoleToUser(
                 this.realmName,
                 userUID,
                 role,
@@ -122,7 +122,7 @@ export class KeycloakFlooder {
 
             log(`Mapping role with user: `, { role, user: userId });
 
-            wait(this.helper.bindClientRoleToUser(
+            wait(this.helper.mapClientRoleToUser(
                 this.realmName,
                 clientUID,
                 userUID,

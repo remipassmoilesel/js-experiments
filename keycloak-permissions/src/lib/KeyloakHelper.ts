@@ -323,7 +323,7 @@ export class KeycloakHelper {
 
     }
 
-    public bindRealmRoleToUser(realmName: string, userUID: string, realmRoleName: string) {
+    public mapRealmRoleToUser(realmName: string, userUID: string, realmRoleName: string) {
 
         return this.getAuth().then((auth) => {
             return this.getRealmRole(realmName, realmRoleName).then((role) => {
@@ -342,7 +342,7 @@ export class KeycloakHelper {
 
     }
 
-    public bindClientRoleToUser(realmName: string, clientUID, userUID: string, clientRoleName: string) {
+    public mapClientRoleToUser(realmName: string, clientUID, userUID: string, clientRoleName: string) {
 
         return this.getAuth().then((auth) => {
             return this.getClientRole(realmName, clientUID, clientRoleName).then((role) => {
