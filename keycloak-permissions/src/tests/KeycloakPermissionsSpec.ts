@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import {run, wait} from "f-promise";
 import * as fs from "fs-extra";
 import * as _ from "lodash";
 import "mocha";
@@ -55,116 +56,86 @@ describe.only("Keycloak permissions test", function () {
         return `${resourceName}`;
     };
 
-    let clientUID = "";
-    let userJsPolicy: any = {};
-    let adminJsPolicy: any = {};
-
-    // code is not required in order to avoid errors
-    let userJsPolicyCode: string = fs.readFileSync("src/tests/javascript-policy-user.js").toString();
-    let adminJsPolicyCode: string = fs.readFileSync("src/tests/javascript-policy-admin.js").toString();
+    let clientUID;
 
     const prepareRealm = () => {
 
+        // code is not required in order to avoid errors
+        let userJsPolicyCode: string = fs.readFileSync("src/tests/javascript-policy-user.js").toString();
+        let adminJsPolicyCode: string = fs.readFileSync("src/tests/javascript-policy-admin.js").toString();
+
         // create realm
         console.log("Creating realm");
-        return helper.createRealm(realmName)
-            .then(() => {
-                // then create client
-                console.log("Creating client");
+        wait(helper.createRealm(realmName));
 
-                return helper.createClient(realmName, {
+        // then create client
+        console.log("Creating client");
+        const client = wait(helper.createClient(realmName, {
                     clientId: clientName,
                     name: clientName,
                     description: `Description of ${clientName}`,
                     redirectUris: ["http://localhost"],
                     serviceAccountsEnabled: true,
                     authorizationServicesEnabled: true,
-                }).then((data) => {
-                    clientUID = data.id;
-                });
-            })
-            .then(() => {
-                // then create resources
-                console.log("Creating resources");
+                }));
+        clientUID = client.id;
 
-                const promises: any[] = [];
-                _.forEach(resources, (resName) => {
-                    promises.push(helper.createResource(realmName, clientUID, {
-                        name: resName,
-                        scopes: [],
-                        type: libraryResourceType,
-                        uri: getResourceUri(resName),
-                    }));
-                });
+        // then create resources
+        console.log("Creating resources");
 
-                return Promise.all(promises);
-            })
-            .then(() => {
-                // then create roles
-                console.log("Creating roles");
+        _.forEach(resources, (resName) => {
+            wait(helper.createResource(realmName, clientUID, {
+                name: resName,
+                scopes: [],
+                type: libraryResourceType,
+                uri: getResourceUri(resName),
+            }));
+        });
 
-                const promises: Array<Promise<any>> = [];
-                _.forEach(roles, (roleName: string) => {
-                    promises.push(helper.createRealmRole(realmName, {
-                        name: roleName,
-                        scopeParamRequired: "",
-                    }));
-                });
-                return Promise.all(promises);
-            })
-            .then(() => {
-                // then create policies
-                console.log("Creating js policies");
+        // then create roles
+        console.log("Creating roles");
 
-                const promises: Array<Promise<any>> = [];
-                promises.push(
-                    helper.createJsPolicy(
-                        realmName,
-                        clientUID,
-                        adminJsPolicyName,
-                        adminJsPolicyCode,
-                    )
-                        .then((data) => {
-                            adminJsPolicy = data;
-                        }),
-                );
+        _.forEach(roles, (roleName: string) => {
+            wait(helper.createRealmRole(realmName, {
+                name: roleName,
+                scopeParamRequired: "",
+            }));
+        });
 
-                promises.push(
-                    helper.createJsPolicy(
+        // then create policies
+        console.log("Creating js policies");
+
+
+        const adminJsPolicy: any = wait(helper.createJsPolicy(
+                realmName,
+                clientUID,
+                adminJsPolicyName,
+                adminJsPolicyCode,
+            ));
+
+        const userJsPolicy: any = wait(helper.createJsPolicy(
                         realmName,
                         clientUID,
                         userJsPolicyName,
                         userJsPolicyCode,
-                    )
-                        .then((data) => {
-                            userJsPolicy = data;
-                        }),
-                );
+                    ));
 
-                return Promise.all(promises);
-            })
-            .then(() => {
-                // then create permissions
-                console.log("Creating permissions");
+        // then create permissions
+        console.log("Creating permissions");
 
-                const promises: Array<Promise<any>> = [];
-                promises.push(
-                    helper.createPermission(
-                        realmName,
-                        clientUID,
-                        {
-                            name: "Admins can administrate",
-                            type: "resource",
-                            logic: "POSITIVE",
-                            decisionStrategy: "UNANIMOUS",
-                            policies: [adminJsPolicy.id],
-                            resourceType: libraryResourceType,
-                        },
-                    ),
-                );
+        wait(helper.createPermission(
+                realmName,
+                clientUID,
+                {
+                    name: "Admins can administrate",
+                    type: "resource",
+                    logic: "POSITIVE",
+                    decisionStrategy: "UNANIMOUS",
+                    policies: [adminJsPolicy.id],
+                    resourceType: libraryResourceType,
+                }));
 
-                promises.push(
-                    helper.createPermission(
+        wait(helper.createPermission(
                         realmName,
                         clientUID,
                         {
@@ -174,61 +145,48 @@ describe.only("Keycloak permissions test", function () {
                             decisionStrategy: "UNANIMOUS",
                             policies: [userJsPolicy.id],
                             resourceType: libraryResourceType,
-                        },
-                    ),
-                );
+                        }));
 
-                return Promise.all(promises);
+        // then create users
+        console.log("Creating users");
 
-            })
-            .then(() => {
-                // then create users
-                console.log("Creating users");
 
-                const promises: Array<Promise<any>> = [];
-                _.forEach(users, (user) => {
-                    promises.push(helper.createUser(realmName, {
-                        enabled: true,
-                        attributes: {},
-                        username: user.name,
-                        emailVerified: "",
-                    }));
-                });
-                return Promise.all(promises);
-            })
-            .then(() => {
-                // then map roles
-                console.log("Mapping roles");
+        _.forEach(users, (user) => {
+            wait(helper.createUser(realmName, {
+                enabled: true,
+                attributes: {},
+                username: user.name,
+                emailVerified: "",
+            }));
+        });
 
-                const promises: Array<Promise<any>> = [];
-                _.forEach(users, (user) => {
-                    promises.push(
-                        helper.getUser(realmName, user.name)
-                            .then((userInfos) => {
-                                _.forEach(user.roles, (role) => {
-                                    promises.push(
-                                        helper.bindRealmRoleToUser(
-                                            realmName,
-                                            (userInfos.id as any),
-                                            role,
-                                        ),
-                                    );
-                                });
-                            }),
-                    );
-                });
+        // then map roles
+        console.log("Mapping roles");
 
-                return Promise.all(promises);
-            })
-            .catch((e) => {
-                console.log(`Error: ${JSON.stringify(e)}`);
-                return Promise.reject(e);
+
+        _.forEach(users, (user) => {
+            const userInfos = wait(helper.getUser(realmName, user.name));
+            _.forEach(user.roles, (role) => {
+                wait(helper.bindRealmRoleToUser(
+                    realmName,
+                    (userInfos.id as any),
+                    role,
+                ));
             });
+        });
 
     };
 
     before(() => {
-        return prepareRealm();
+        return run(() => {
+            try {
+                prepareRealm();
+            } catch (e) {
+                console.log("Error while preparing realm: " + e);
+            }
+
+        });
+
     });
 
     const evaluate = (resourceName: string, userName: string, status: "PERMIT" | "DENY") => {

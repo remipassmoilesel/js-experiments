@@ -43,6 +43,9 @@ print('Groups: ' + groups);
 var resource = $evaluation.getPermission().getResource();
 print('Resource uri: ' + resource.getUri());
 
+var scopes = $evaluation.getPermission().getScopes();
+print('Scopes: ' + scopes.get(0).getName());
+
 if (!groups) {
     print('No groups found, deny');
     $evaluation.deny();
