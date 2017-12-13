@@ -1,3 +1,6 @@
+
+// POLICY VARIABLES SHOULD BE CONCATENATED ABOVE
+
 // HELPERS
 
 function log(msg) {
@@ -12,34 +15,43 @@ function log(msg) {
 
 log("\n\nPolicy evaluation with group prefix: " + ROLE_PREFIX);
 
-var identity = $evaluation.getContext().getIdentity();
-log("Identity: " + identity.getId());
+var context = $evaluation.getContext();
+var contextAttributes = context.getAttributes();
+log("Context attributes: " + contextAttributes.toMap());
 
-var attributes = identity.getAttributes();
-log("Attributes: " + attributes.toMap());
+var identity = context.getIdentity();
+var identityAttributes = identity.getAttributes();
+var username = identity.getAttributes().getValue('preferred_username').asString(0);
+log("User name: " + username);
+log("Identity attributes: " + identityAttributes.toMap());
 
 var resource = $evaluation.getPermission().getResource();
 var resUri = resource.getUri();
-log("Resource uri: " + resUri);
+var resName = resource.getName();
+log("Resource name=" + resName + " uri=" + resUri);
 
 var expectedRole = ROLE_PREFIX + resUri;
 log('Expected role: ' + expectedRole);
 
-var scopes = $evaluation.getPermission().getScopes();
+var requiredScopes = $evaluation.getPermission().getScopes();
+
+var clientUID = $evaluation.getPermission().getResourceServer().getId();
+var clientName = contextAttributes.getValue('kc.client.id').asString(0);
+log('Resource server name=' + clientName + ' UID=' + clientUID);
 
 //
 // EVALUATION FUNCTIONS
 //
 
-function evaluateRole(identity) {
-    log('Evaluating role for ' + identity.getId());
-    var res = identity.hasClientRole(clientId, expectedRole);
+function evaluateRole() {
+    log('Searching role ' + expectedRole + ' for ' + username);
+    var res = identity.hasClientRole(clientName, expectedRole);
     log('result = ' + res);
     return res;
 }
 
-function evaluateScopes(requiredScopes, identity) {
-    log('Evaluating scopes for ' + requiredScopes + ' / ' + identity.getId());
+function evaluateScopes() {
+    log('Evaluating scopes ' + requiredScopes + ' for ' + username);
 
     if(!requiredScopes || requiredScopes.size() < 1){
         log('No scopes found');
@@ -50,6 +62,7 @@ function evaluateScopes(requiredScopes, identity) {
     for(var i = 0; i < requiredScopes.size(); i++){
         var scope = requiredScopes.get(i);
         if(!authorizedScopes.includes(scope)){
+            log('Scope not found: ' + scope);
             res = false;
         }
     }
@@ -61,7 +74,7 @@ function evaluateScopes(requiredScopes, identity) {
 // POLICY EVALUATION
 //
 
-if(evaluateRole(identity) && evaluateScopes(scopes, identity)){
+if(evaluateRole() && evaluateScopes()){
     $evaluation.grant();
 } else {
     $evaluation.deny();
