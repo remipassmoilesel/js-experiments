@@ -13,16 +13,14 @@ function log(msg) {
 // VARIABLES DEFINITION
 //
 
-log("\n\nPolicy evaluation with group prefix: " + ROLE_PREFIX);
-
 var context = $evaluation.getContext();
-var contextAttributes = context.getAttributes();
-log("Context attributes: " + contextAttributes.toMap());
-
 var identity = context.getIdentity();
 var identityAttributes = identity.getAttributes();
-var username = identity.getAttributes().getValue('preferred_username').asString(0);
-log("User name: " + username);
+var username = identityAttributes.getValue('preferred_username').asString(0);
+var contextAttributes = context.getAttributes();
+
+log("\n\nPolicy evaluation for " + username + " with group prefix: " + ROLE_PREFIX);
+log("Context attributes: " + contextAttributes.toMap());
 log("Identity attributes: " + identityAttributes.toMap());
 
 var resource = $evaluation.getPermission().getResource();
@@ -68,7 +66,7 @@ function evaluateScopes() {
         }
     }
 
-    log('Scope was found: ' + res);
+    log('All scopes required were found: ' + res);
 
     return res;
 }
