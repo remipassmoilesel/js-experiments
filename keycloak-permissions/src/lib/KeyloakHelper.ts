@@ -362,7 +362,8 @@ export class KeycloakHelper {
 
     }
 
-    public evaluate(realmName: string, clientUID: string, resource: IResourceRepresentation, userUID: string) {
+    public evaluate(realmName: string, clientUID: string,
+                    resource: IResourceRepresentation, userUID: string) {
 
         return this.getAuth().then((auth) => {
 

@@ -1,5 +1,5 @@
 import * as chai from "chai";
-import {run, wait} from "f-promise";
+import { run, wait } from "f-promise";
 import * as fs from "fs-extra";
 import * as _ from "lodash";
 import "mocha";
@@ -12,7 +12,7 @@ const assert = chai.assert;
 
 describe.only("Keycloak permissions test", function () {
 
-    this.timeout(5000);
+    this.timeout(10000);
 
     const keycloakBaseUrl = "http://172.17.0.3:8080/auth";
     const authSettings: IAuthSettings = {
@@ -78,13 +78,13 @@ describe.only("Keycloak permissions test", function () {
         // then create client
         console.log("Creating client");
         const client = wait(helper.createClient(realmName, {
-                    clientId: clientName,
-                    name: clientName,
-                    description: `Description of ${clientName}`,
-                    redirectUris: ["http://localhost"],
-                    serviceAccountsEnabled: true,
-                    authorizationServicesEnabled: true,
-                }));
+            clientId: clientName,
+            name: clientName,
+            description: `Description of ${clientName}`,
+            redirectUris: ["http://localhost"],
+            serviceAccountsEnabled: true,
+            authorizationServicesEnabled: true,
+        }));
         clientUID = client.id;
 
         // then create scopes
@@ -98,7 +98,7 @@ describe.only("Keycloak permissions test", function () {
         _.forEach(resources, (resName) => {
             wait(helper.createResource(realmName, clientUID, {
                 name: resName,
-                scopes: [],
+                scopes: [adminScope, useScope],
                 type: libraryResourceType,
                 uri: getResourceUri(resName),
             }));
@@ -118,45 +118,45 @@ describe.only("Keycloak permissions test", function () {
         console.log("Creating js policies");
 
         const adminJsPolicy: any = wait(helper.createJsPolicy(
-                realmName,
-                clientUID,
-                adminJsPolicyName,
-                adminJsPolicyCode,
-            ));
+            realmName,
+            clientUID,
+            adminJsPolicyName,
+            adminJsPolicyCode,
+        ));
 
         const userJsPolicy: any = wait(helper.createJsPolicy(
-                        realmName,
-                        clientUID,
-                        userJsPolicyName,
-                        userJsPolicyCode,
-                    ));
+            realmName,
+            clientUID,
+            userJsPolicyName,
+            userJsPolicyCode,
+        ));
 
         // then create permissions
         console.log("Creating permissions");
 
         wait(helper.createPermission(
-                realmName,
-                clientUID,
-                {
-                    name: "Admins can administrate",
-                    type: "resource",
-                    logic: "POSITIVE",
-                    decisionStrategy: "UNANIMOUS",
-                    policies: [adminJsPolicy.id],
-                    resourceType: libraryResourceType,
-                }));
+            realmName,
+            clientUID,
+            {
+                name: "Admins can administrate",
+                type: "resource",
+                logic: "POSITIVE",
+                decisionStrategy: "UNANIMOUS",
+                policies: [adminJsPolicy.id],
+                resourceType: libraryResourceType,
+            }));
 
         wait(helper.createPermission(
-                        realmName,
-                        clientUID,
-                        {
-                            name: "Users can use",
-                            type: "resource",
-                            logic: "POSITIVE",
-                            decisionStrategy: "UNANIMOUS",
-                            policies: [userJsPolicy.id],
-                            resourceType: libraryResourceType,
-                        }));
+            realmName,
+            clientUID,
+            {
+                name: "Users can use",
+                type: "resource",
+                logic: "POSITIVE",
+                decisionStrategy: "UNANIMOUS",
+                policies: [userJsPolicy.id],
+                resourceType: libraryResourceType,
+            }));
 
         // then create users
         console.log("Creating users");
@@ -199,46 +199,40 @@ describe.only("Keycloak permissions test", function () {
 
     });
 
-    const evaluate = (resourceName: string, userName: string, status: "PERMIT" | "DENY") => {
+    const evaluate = (resourceName: string, userName: string, scopeNames: string[], status: "PERMIT" | "DENY") => {
 
-        let resource: IResourceRepresentation;
-        let user: IUserRepresentation;
-        return helper.getResource(realmName, clientUID, resourceName)
-            .then((res) => {
-                resource = res;
-            })
-            .then(() => {
-                return helper.getUser(realmName, userName)
-                    .then((u) => {
-                        user = u;
-                    });
-            })
-            .then(() => {
-                return helper.evaluate(realmName, clientUID, resource, (user.id as any))
-                    .then((evaluation) => {
-                        assert.isTrue(evaluation.results.length > 0);
-                        _.forEach(evaluation.results, (rslt) => {
-                            assert.equal(rslt.status, status);
-                        });
-                    });
+        return run(() => {
+
+            const resource: IResourceRepresentation = wait(helper.getResource(realmName, clientUID, resourceName));
+            resource.scopes = scopeNames;
+
+            let user: IUserRepresentation = wait(helper.getUser(realmName, userName));
+
+            const evaluations: any = wait(helper.evaluate(realmName, clientUID, resource, (user.id as any)));
+
+            assert.isTrue(evaluations.results.length > 0);
+            _.forEach(evaluations.results, (rslt) => {
+                assert.equal(rslt.status, status);
             });
+
+        });
 
     };
 
     it("User A should be authorized to administrate library A", () => {
-        return evaluate(resources[0], users[0].name, "PERMIT");
+        return evaluate(resources[0], users[0].name, ["ADMINISTRATE"], "PERMIT");
     });
 
     it("User B should be authorized to administrate library B", () => {
-        return evaluate(resources[1], users[1].name, "PERMIT");
+        return evaluate(resources[1], users[1].name, ["ADMINISTRATE"], "PERMIT");
     });
 
     it("User A should not be authorized to administrate library B", () => {
-        return evaluate(resources[0], users[0].name, "DENY");
+        return evaluate(resources[0], users[0].name, ["ADMINISTRATE"], "DENY");
     });
 
     it("User B should not be authorized to administrate library A", () => {
-        return evaluate(resources[1], users[1].name, "DENY");
+        return evaluate(resources[1], users[1].name, ["ADMINISTRATE"], "DENY");
     });
 
 });

@@ -307,6 +307,16 @@ describe("Keycloak helper test", function () {
 
     });
 
+    it("Create a scope should success", () => {
+
+        return helper.getClient(realmName, clientName)
+            .then((clientsInfo) => {
+                const clientUID: string = clientsInfo.id as any;
+                return helper.createScope(realmName, clientUID, "test-scope");
+            });
+
+    });
+
     it("Evaluate should success", () => {
 
         return helper.getClient(realmName, clientName)
@@ -329,7 +339,9 @@ describe("Keycloak helper test", function () {
                     });
             })
             .then((data: any) => {
-                return helper.evaluate(realmName, data.clientUID, data.resource, data.user.id);
+                data.resource.scopes = ["test-scope"];
+                return helper.evaluate(realmName, data.clientUID,
+                    data.resource, data.user.id);
             });
 
     });
@@ -364,16 +376,6 @@ describe("Keycloak helper test", function () {
             .then((data) => {
                 return helper.bindGroup(realmName, data.userId, data.groupId);
             });
-    });
-
-    it("Create a scope should success", () => {
-
-        return helper.getClient(realmName, clientName)
-            .then((clientsInfo) => {
-                const clientUID: string = clientsInfo.id as any;
-                return helper.createScope(realmName, clientUID, "test-scope");
-            });
-
     });
 
 });

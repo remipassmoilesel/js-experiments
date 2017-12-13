@@ -46,26 +46,29 @@ log('Resource server name=' + clientName + ' UID=' + clientUID);
 function evaluateRole() {
     log('Searching role ' + expectedRole + ' for ' + username);
     var res = identity.hasClientRole(clientName, expectedRole);
-    log('result = ' + res);
+    log('Role was found: ' + res);
     return res;
 }
 
 function evaluateScopes() {
-    log('Evaluating scopes ' + requiredScopes + ' for ' + username);
+    log('Evaluating scopes for ' + username);
 
-    if(!requiredScopes || requiredScopes.size() < 1){
+    if(!requiredScopes || requiredScopes.length < 1){
         log('No scopes found');
         return false;
     }
 
     var res = true;
-    for(var i = 0; i < requiredScopes.size(); i++){
-        var scope = requiredScopes.get(i);
-        if(!authorizedScopes.includes(scope)){
+    for(var i = 0; i < requiredScopes.length; i++){
+        var scope = requiredScopes[i].getName();
+        log('Searching scope: ' + scope);
+        if(authorizedScopes.indexOf(scope) === -1){
             log('Scope not found: ' + scope);
             res = false;
         }
     }
+
+    log('Scope was found: ' + res);
 
     return res;
 }
