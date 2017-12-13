@@ -19,13 +19,13 @@ log("Identity attributes: " + identityAttributes.toMap());
 var resource = $evaluation.getPermission().getResource();
 var resUri = resource.getUri();
 var resName = resource.getName();
-log("Resource name=" + resName + " uri=" + resUri);
+log("Resource: name=" + resName + " uri=" + resUri);
 
 var requiredScopes = $evaluation.getPermission().getScopes();
 
 var clientUID = $evaluation.getPermission().getResourceServer().getId();
 var clientName = contextAttributes.getValue('kc.client.id').asString(0);
-log('Resource server name=' + clientName + ' UID=' + clientUID);
+log('Resource server: name=' + clientName + ' UID=' + clientUID);
 
 //
 // EVALUATION FUNCTION
