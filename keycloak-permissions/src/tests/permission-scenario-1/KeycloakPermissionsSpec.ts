@@ -3,14 +3,14 @@ import { run, wait } from "f-promise";
 import * as fs from "fs-extra";
 import * as _ from "lodash";
 import "mocha";
-import { IAuthSettings } from "../lib/AuthSettings";
-import { KeycloakHelper } from "../lib/KeyloakHelper";
-import { IResourceRepresentation } from "../lib/representations/IResourceRepresentation";
-import { IUserRepresentation } from "../lib/representations/IUserRepresentation";
+import { IAuthSettings } from "../../lib/AuthSettings";
+import { KeycloakHelper } from "../../lib/KeyloakHelper";
+import { IResourceRepresentation } from "../../lib/representations/IResourceRepresentation";
+import { IUserRepresentation } from "../../lib/representations/IUserRepresentation";
 
 const assert = chai.assert;
 
-describe.only("Keycloak permissions test", function () {
+describe("Keycloak permissions test", function () {
 
     this.timeout(10000);
 
