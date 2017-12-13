@@ -33,20 +33,24 @@ describe.only("Keycloak permissions test", function () {
     const jsPolicyName = "library-policy";
 
     const libraryResourceType = "library";
-    const resources = [
-        "library-A",
-        "library-B",
-    ];
+
+    const libraryA = "library-A";
+    const libraryB = "library-B";
+    const resources = [libraryA, libraryB];
+
 
     const roles = ["admin_library-A", "admin_library-B", "user_library-A", "user_library-B"];
 
+    const userA = "userA";
+    const userB = "userB";
+
     const users = [
         {
-            name: "userA",
+            name: userA,
             roles: ["admin_library-A", "user_library-A", "user_library-B"],
         },
         {
-            name: "userB",
+            name: userB,
             roles: ["admin_library-B", "user_library-B", "user_library-A"],
         },
     ];
@@ -197,19 +201,28 @@ describe.only("Keycloak permissions test", function () {
     };
 
     it("User A should be authorized to administrate library A", () => {
-        return evaluate(resources[0], users[0].name, ["ADMINISTRATE"], "PERMIT");
+        return evaluate(libraryA, userA, [adminScopeName], "PERMIT");
     });
 
-    it("User B should be authorized to administrate library B", () => {
-        return evaluate(resources[1], users[1].name, ["ADMINISTRATE"], "PERMIT");
+    it("User A should be authorized to use library A", () => {
+        return evaluate(libraryA, userA, [useScopeName], "PERMIT");
     });
 
     it("User A should not be authorized to administrate library B", () => {
-        return evaluate(resources[1], users[0].name, ["ADMINISTRATE"], "DENY");
+        return evaluate(libraryB, userA, [adminScopeName], "DENY");
+    });
+
+
+    it("User B should be authorized to administrate library B", () => {
+        return evaluate(libraryB, userB, [adminScopeName], "PERMIT");
+    });
+
+    it("User B should be authorized to use library B", () => {
+        return evaluate(libraryB, userB, [useScopeName], "PERMIT");
     });
 
     it("User B should not be authorized to administrate library A", () => {
-        return evaluate(resources[0], users[1].name, ["ADMINISTRATE"], "DENY");
+        return evaluate(libraryA, userB, [adminScopeName], "DENY");
     });
 
 });
