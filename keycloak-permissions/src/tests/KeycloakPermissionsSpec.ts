@@ -23,21 +23,17 @@ describe.only("Keycloak permissions test", function () {
         client_id: "admin-cli",
     };
 
-
     const helper = new KeycloakHelper(authSettings);
 
-    const increment = new Date().toISOString().replace(/[-:.]+/ig, "");
-    const realmName = `${increment}`;
+    const realmName = new Date().toISOString().replace(/[-:.]+/ig, "");
     const clientName = `000-library-client-a`;
 
     const jsPolicyName = "library-policy";
-
     const libraryResourceType = "library";
 
     const libraryA = "library-A";
     const libraryB = "library-B";
     const resources = [libraryA, libraryB];
-
 
     const roles = ["admin_library-A", "admin_library-B", "user_library-A", "user_library-B"];
 
