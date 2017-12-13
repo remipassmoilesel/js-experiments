@@ -30,8 +30,7 @@ describe.only("Keycloak permissions test", function () {
     const realmName = `${increment}`;
     const clientName = `000-library-client-a`;
 
-    const adminJsPolicyName = "admin-js-policy";
-    const userJsPolicyName = "user-js-policy";
+    const jsPolicyName = "library-policy";
 
     const libraryResourceType = "library";
     const resources = [
@@ -64,12 +63,9 @@ describe.only("Keycloak permissions test", function () {
     const prepareRealm = () => {
 
         // code is not required in order to avoid errors for undefined variables
-        let policyCode = fs.readFileSync("src/tests/javascript-policy.js").toString();
-        let userJsPolicyVariables: string = fs.readFileSync("src/tests/javascript-policy-user.js").toString();
-        let adminJsPolicyVariables: string = fs.readFileSync("src/tests/javascript-policy-admin.js").toString();
-        let userJsPolicyCode: string = userJsPolicyVariables + policyCode;
-        let adminJsPolicyCode: string = adminJsPolicyVariables + policyCode;
-
+        let jsPolicyCodePartial = fs.readFileSync("src/tests/javascript-policy.js").toString();
+        let jsPolicyVariables: string = fs.readFileSync("src/tests/javascript-policy-variables.js").toString();
+        let jsPolicy: string = jsPolicyVariables + jsPolicyCodePartial;
 
         // create realm
         console.log("Creating realm");
@@ -115,24 +111,17 @@ describe.only("Keycloak permissions test", function () {
         });
 
         // then create policies
-        console.log("Creating js policies");
+        console.log("Creating js policy");
 
-        const adminJsPolicy: any = wait(helper.createJsPolicy(
+        const jsPolicyRepr: any = wait(helper.createJsPolicy(
             realmName,
             clientUID,
-            adminJsPolicyName,
-            adminJsPolicyCode,
-        ));
-
-        const userJsPolicy: any = wait(helper.createJsPolicy(
-            realmName,
-            clientUID,
-            userJsPolicyName,
-            userJsPolicyCode,
+            jsPolicyName,
+            jsPolicy,
         ));
 
         // then create permissions
-        console.log("Creating permissions");
+        console.log("Creating permission");
 
         wait(helper.createPermission(
             realmName,
@@ -141,20 +130,8 @@ describe.only("Keycloak permissions test", function () {
                 name: "Admins can administrate",
                 type: "resource",
                 logic: "POSITIVE",
-                decisionStrategy: "UNANIMOUS",
-                policies: [adminJsPolicy.id],
-                resourceType: libraryResourceType,
-            }));
-
-        wait(helper.createPermission(
-            realmName,
-            clientUID,
-            {
-                name: "Users can use",
-                type: "resource",
-                logic: "POSITIVE",
-                decisionStrategy: "UNANIMOUS",
-                policies: [userJsPolicy.id],
+                decisionStrategy: "AFFIRMATIVE",
+                policies: [jsPolicyRepr.id],
                 resourceType: libraryResourceType,
             }));
 
@@ -228,11 +205,11 @@ describe.only("Keycloak permissions test", function () {
     });
 
     it("User A should not be authorized to administrate library B", () => {
-        return evaluate(resources[0], users[0].name, ["ADMINISTRATE"], "DENY");
+        return evaluate(resources[1], users[0].name, ["ADMINISTRATE"], "DENY");
     });
 
     it("User B should not be authorized to administrate library A", () => {
-        return evaluate(resources[1], users[1].name, ["ADMINISTRATE"], "DENY");
+        return evaluate(resources[0], users[1].name, ["ADMINISTRATE"], "DENY");
     });
 
 });

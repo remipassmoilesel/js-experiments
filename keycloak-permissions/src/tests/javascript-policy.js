@@ -1,25 +1,18 @@
 
 // POLICY VARIABLES SHOULD BE CONCATENATED ABOVE
 
-// HELPERS
-
-function log(msg) {
-    if (debug) {
-        print(msg);
-    }
-}
-
 //
 // VARIABLES DEFINITION
 //
 
 var context = $evaluation.getContext();
 var identity = context.getIdentity();
+
 var identityAttributes = identity.getAttributes();
 var username = identityAttributes.getValue('preferred_username').asString(0);
 var contextAttributes = context.getAttributes();
 
-log("\n\nPolicy evaluation for " + username + " with group prefix: " + ROLE_PREFIX);
+log("Policy evaluation for " + username);
 log("Context attributes: " + contextAttributes.toMap());
 log("Identity attributes: " + identityAttributes.toMap());
 
@@ -28,9 +21,6 @@ var resUri = resource.getUri();
 var resName = resource.getName();
 log("Resource name=" + resName + " uri=" + resUri);
 
-var expectedRole = ROLE_PREFIX + resUri;
-log('Expected role: ' + expectedRole);
-
 var requiredScopes = $evaluation.getPermission().getScopes();
 
 var clientUID = $evaluation.getPermission().getResourceServer().getId();
@@ -38,17 +28,10 @@ var clientName = contextAttributes.getValue('kc.client.id').asString(0);
 log('Resource server name=' + clientName + ' UID=' + clientUID);
 
 //
-// EVALUATION FUNCTIONS
+// EVALUATION FUNCTION
 //
 
-function evaluateRole() {
-    log('Searching role ' + expectedRole + ' for ' + username);
-    var res = identity.hasClientRole(clientName, expectedRole);
-    log('Role was found: ' + res);
-    return res;
-}
-
-function evaluateScopes() {
+function evaluate() {
     log('Evaluating scopes for ' + username);
 
     if(!requiredScopes || requiredScopes.length < 1){
@@ -56,28 +39,35 @@ function evaluateScopes() {
         return false;
     }
 
-    var res = true;
+    var result = true;
     for(var i = 0; i < requiredScopes.length; i++){
         var scope = requiredScopes[i].getName();
-        log('Searching scope: ' + scope);
-        if(authorizedScopes.indexOf(scope) === -1){
-            log('Scope not found: ' + scope);
-            res = false;
+        log('Evaluating scope: ' + scope);
+
+        var rolePrefix = scopesMap[scope].rolePrefix;
+        var expectedRole = rolePrefix + resUri;
+        log('Expected client role: ' + expectedRole);
+
+        if(!identity.hasClientRole(clientName, expectedRole)){
+            log('Role not found: ' + expectedRole);
+            result = false;
         }
     }
 
-    log('All scopes required were found: ' + res);
+    log('All scopes required were found: ' + result);
 
-    return res;
+    return result;
 }
 
 //
 // POLICY EVALUATION
 //
 
-if(evaluateRole() && evaluateScopes()){
+if(evaluate()){
+    log('Authorization GRANTED !');
     $evaluation.grant();
 } else {
+    log('Authorization DENIED !');
     $evaluation.deny();
 }
 
