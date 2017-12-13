@@ -438,6 +438,22 @@ export class KeycloakHelper {
         });
     }
 
+    public createScope(realmName: string, clientUID: string, scopeName: string) {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin`
+                    + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/scope`,
+                auth,
+                body: {name: scopeName},
+                json: true,
+            };
+
+            return request(options);
+        });
+    }
+
     private getToken() {
 
         const options = {

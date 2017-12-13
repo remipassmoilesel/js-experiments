@@ -366,4 +366,14 @@ describe("Keycloak helper test", function () {
             });
     });
 
+    it("Create a scope should success", () => {
+
+        return helper.getClient(realmName, clientName)
+            .then((clientsInfo) => {
+                const clientUID: string = clientsInfo.id as any;
+                return helper.createScope(realmName, clientUID, "test-scope");
+            });
+
+    });
+
 });
