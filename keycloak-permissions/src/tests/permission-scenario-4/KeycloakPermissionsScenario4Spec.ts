@@ -47,11 +47,11 @@ describe.only("Keycloak permissions scenario 4", function () {
     const users = [
         {
             name: userA,
-            groups: [groupComtaA, groupDrhB],
+            groups: [groupDrhA, groupComtaB],
         },
         {
             name: userB,
-            groups: [groupComtaB, groupDrhA],
+            groups: [groupDrhB, groupComtaA],
         },
     ];
 
