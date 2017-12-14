@@ -30,28 +30,21 @@ describe.only("Keycloak permissions scenario 2", function () {
     const clientName = `000-library-client-a`;
     const libraryResourceType = "library";
 
-    const libraryA = "library-A";
-    const libraryB = "library-B";
+    const libraryA = "library-a";
+    const libraryB = "library-b";
     const resourceNames = [libraryA, libraryB];
 
-    const userA = "userA";
-    const userB = "userB";
+    const userA = "user-a";
+    const userB = "user-b";
 
-    const groupUserPrefix = "user_";
-    const groupAdminPrefix = "admin_";
+    const groupUserPrefix = "user-";
+    const groupAdminPrefix = "admin-";
     const groupLibAUser = groupUserPrefix + libraryA;
     const groupLibBUser = groupUserPrefix + libraryB;
     const groupLibAAdmin = groupAdminPrefix + libraryA;
     const groupLibBAdmin = groupAdminPrefix + libraryB;
 
-    const groups = [groupLibAUser, groupLibAAdmin, groupLibBUser, groupLibBAdmin];
-
-    // créer les utilisateurs
-    // créer les scopes
-    // créer 2 groupes par resource
-    // créer 2 policies de goupe
-    // créer 2 scope based permissions
-    // ...
+    const groupNames = [groupLibAUser, groupLibAAdmin, groupLibBUser, groupLibBAdmin];
 
     const users = [
         {
@@ -69,6 +62,30 @@ describe.only("Keycloak permissions scenario 2", function () {
     const deleteScopeName = "DELETE";
     const updateScopeName = "UPDATE";
     const scopeNames = [deleteScopeName, readScopeName, editScopeName, updateScopeName];
+
+    const groupScopeMappings = [
+        {
+            resource: libraryA,
+            groupName: groupLibAUser,
+            scopes: ["READ"],
+        },
+        {
+            resource: libraryA,
+            groupName: groupLibAAdmin,
+            scopes: scopeNames,
+        },
+        {
+            resource: libraryB,
+            groupName: groupLibBUser,
+            scopes: ["READ"],
+        },
+        {
+            resource: libraryB,
+            groupName: groupLibBAdmin,
+            scopes: scopeNames,
+        },
+    ];
+
 
     let clientUID;
 
@@ -99,7 +116,7 @@ describe.only("Keycloak permissions scenario 2", function () {
 
         // then create groups
         console.log("Creating groups");
-        _.forEach(groups, (gr) => {
+        _.forEach(groupNames, (gr) => {
             wait(helper.createGroup(realmName, gr));
         });
         const groupsRepr: IGroupRepresentation[] = wait(helper.getGroups(realmName));
@@ -125,7 +142,7 @@ describe.only("Keycloak permissions scenario 2", function () {
             wait(helper.createGroupBasedPolicy(
                 realmName,
                 clientUID,
-                `Belong to ${gr.name}`,
+                `Belong to group ${gr.name}`,
                 [{ id: gr.id, path: gr.path }]));
         });
         const policiesRepr: IResourcePermissionRepresentation[] = wait(helper.getPolicies(
@@ -135,64 +152,59 @@ describe.only("Keycloak permissions scenario 2", function () {
         ));
 
         // then create permissions
-        _.forEach(resourcesRepr, (res: IResourceRepresentation) => {
-            _.forEach(scopesRepr, (scope) => {
+        _.forEach(groupScopeMappings, (mapping) => {
+            const resName = mapping.resource;
+            const groupName = mapping.groupName;
+            const scopeNames = mapping.scopes;
 
-                const policy = _.filter(policiesRepr, (pol) => {
-                    return pol.name.indexOf(res.name) !== -1;
-                })[0];
-
-                helper.createScopeBasedPermission(realmName,
-                    clientUID,
-                    `Can ${scope.name} on ${res.name}`,
-                    [(res._id as any)],
-                    [scope.id],
-                    [policy.id]);
+            const resUID = _.filter(resourcesRepr, (res) => resName === res.uri)[0]._id;
+            const scopeUIDs = _.map(scopeNames, (scopeName) => {
+                return _.filter(scopesRepr, (sc) => sc.name === scopeName)[0].id;
             });
+            const policyUID = _.filter(policiesRepr, (pol) => {
+                return pol.name.indexOf(groupName) !== -1;
+            })[0].id;
+
+            wait(helper.createScopeBasedPermission(realmName,
+                clientUID,
+                `Can ${scopeNames.join(", ")} on ${resName}`,
+                [resUID],
+                scopeUIDs,
+                [policyUID]));
+
         });
 
+        // then create users
+        console.log("Creating users");
+        const usersRepr: any[] = [];
+        _.forEach(users, (user) => {
+            wait(helper.createUser(realmName, {
+                enabled: true,
+                attributes: {},
+                username: user.name,
+                emailVerified: "",
+            }));
+            usersRepr.push(wait(helper.getUser(realmName, user.name)));
+        });
 
-        // // then create permissions
-        // console.log("Creating permission");
-        //
-        // wait(helper.createPermission(
-        //     realmName,
-        //     clientUID,
-        //     {
-        //         name: "Admins can administrate",
-        //         type: "resource",
-        //         logic: "POSITIVE",
-        //         decisionStrategy: "AFFIRMATIVE",
-        //         policies: [jsPolicyRepr.id],
-        //         resourceType: libraryResourceType,
-        //     }));
-        //
-        // // then create users
-        // console.log("Creating users");
-        //
-        // _.forEach(users, (user) => {
-        //     wait(helper.createUser(realmName, {
-        //         enabled: true,
-        //         attributes: {},
-        //         username: user.name,
-        //         emailVerified: "",
-        //     }));
-        // });
-        //
-        // // then map roles
-        // console.log("Mapping client roles");
-        //
-        // _.forEach(users, (user) => {
-        //     const userInfos = wait(helper.getUser(realmName, user.name));
-        //     _.forEach(user.roles, (role) => {
-        //         wait(helper.mapClientRoleToUser(
-        //             realmName,
-        //             clientUID,
-        //             (userInfos.id as any),
-        //             role,
-        //         ));
-        //     });
-        // });
+        // then map groups
+        console.log("Mapping groups");
+
+        _.forEach(users, (user) => {
+            _.forEach(user.groups, (groupName) => {
+
+                const groupUID = _.filter(groupsRepr, (gr) => gr.name === groupName)[0].id;
+                const userUID = _.filter(usersRepr, (userRepr) => {
+                    return userRepr.username === user.name;
+                })[0].id;
+
+                wait(helper.mapGroupToUser(
+                    realmName,
+                    userUID,
+                    groupUID,
+                ));
+            });
+        });
 
     };
 
@@ -202,6 +214,7 @@ describe.only("Keycloak permissions scenario 2", function () {
                 prepareRealm();
             } catch (e) {
                 console.log("Error while preparing realm: " + e);
+                throw e;
             }
 
         });
@@ -228,29 +241,29 @@ describe.only("Keycloak permissions scenario 2", function () {
 
     };
 
-    it("User A should be authorized to administrate library A", () => {
-        assert.isTrue(true);
+    it("User A should be authorized to EDIT library A", () => {
+        return evaluate(libraryA, userA, [editScopeName], "PERMIT");
     });
 
-    // it("User A should be authorized to use library A", () => {
-    //     return evaluate(libraryA, userA, [useScopeName], "PERMIT");
-    // });
-    //
-    // it("User A should not be authorized to administrate library B", () => {
-    //     return evaluate(libraryB, userA, [adminScopeName], "DENY");
-    // });
-    //
-    //
-    // it("User B should be authorized to administrate library B", () => {
-    //     return evaluate(libraryB, userB, [adminScopeName], "PERMIT");
-    // });
-    //
-    // it("User B should be authorized to use library B", () => {
-    //     return evaluate(libraryB, userB, [useScopeName], "PERMIT");
-    // });
-    //
-    // it("User B should not be authorized to administrate library A", () => {
-    //     return evaluate(libraryA, userB, [adminScopeName], "DENY");
-    // });
+    it("User A should be authorized to READ library A", () => {
+        return evaluate(libraryA, userA, [readScopeName], "PERMIT");
+    });
+
+    it("User A should not be authorized to EDIT library B", () => {
+        return evaluate(libraryB, userA, [editScopeName], "DENY");
+    });
+
+
+    it("User B should be authorized to EDIT library B", () => {
+        return evaluate(libraryB, userB, [editScopeName], "PERMIT");
+    });
+
+    it("User B should be authorized to READ library B", () => {
+        return evaluate(libraryB, userB, [readScopeName], "PERMIT");
+    });
+
+    it("User B should not be authorized to EDIT library A", () => {
+        return evaluate(libraryA, userB, [editScopeName], "DENY");
+    });
 
 });

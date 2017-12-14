@@ -201,8 +201,7 @@ export class KeycloakHelper {
 
     }
 
-    public getPolicies(realmName: string, clientUID: string, limit: number):
-            Promise<IResourcePermissionRepresentation[]> {
+    public getPolicies(realmName: string, clientUID: string, limit: number): Promise<IResourcePermissionRepresentation[]> {
 
         return this.getAuth().then((auth) => {
             const options = {
@@ -477,12 +476,12 @@ export class KeycloakHelper {
         return this.getAuth().then((auth) => {
 
             const payload = {
-                    type: "group",
-                    logic: "POSITIVE",
-                    name,
-                    groupsClaim: "groups",
-                    groups: groupsRepr,
-                };
+                type: "group",
+                logic: "POSITIVE",
+                name,
+                groupsClaim: "$groups",
+                groups: groupsRepr,
+            };
 
             const options = {
                 method: "POST",
@@ -524,6 +523,29 @@ export class KeycloakHelper {
             return request(options);
         });
 
+    }
+
+    public mapGroupToUser(realmName: string, userUID: string, groupUID: string) {
+
+        return this.getAuth().then((auth) => {
+
+            const payload = {
+                realm: realmName,
+                userId: userUID,
+                groupId: groupUID,
+            };
+
+            const options = {
+                method: "PUT",
+                uri: `${this.authSettings.baseUrl}/admin`
+                + `/realms/${realmName}/users/${userUID}/groups/${groupUID}`,
+                auth,
+                body: payload,
+                json: true,
+            };
+
+            return request(options);
+        });
 
     }
 
