@@ -445,9 +445,32 @@ export class KeycloakHelper {
             const options = {
                 method: "POST",
                 uri: `${this.authSettings.baseUrl}/admin`
-                    + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/scope`,
+                + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/scope`,
                 auth,
-                body: {name: scopeName},
+                body: { name: scopeName },
+                json: true,
+            };
+
+            return request(options);
+        });
+    }
+
+    public createGroupBasedPolicy(realmName: string, clientUID: string, name: string,
+                                  groupsRepr: IGroupRepresentation[]) {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin`
+                + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/group`,
+                auth,
+                body: {
+                    type: "group",
+                    logic: "POSITIVE",
+                    name,
+                    groupsClaim: "groups",
+                    groups: groupsRepr,
+                },
                 json: true,
             };
 

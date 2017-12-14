@@ -4,6 +4,7 @@ import * as _ from "lodash";
 import "mocha";
 import { IAuthSettings } from "../../lib/AuthSettings";
 import { KeycloakHelper } from "../../lib/KeyloakHelper";
+import { IGroupRepresentation } from "../../lib/representations/IGroupRepresentation";
 import { IResourceRepresentation } from "../../lib/representations/IResourceRepresentation";
 import { IUserRepresentation } from "../../lib/representations/IUserRepresentation";
 
@@ -95,9 +96,15 @@ describe.only("Keycloak permissions scenario 2", function () {
             scopesRepr.push(wait(helper.createScope(realmName, clientUID, sc)));
         });
 
+        // then create groups
+        console.log("Creating groups");
+        _.forEach(groups, (gr) => {
+            wait(helper.createGroup(realmName, gr));
+        });
+        const groupsRepr: IGroupRepresentation[] = wait(helper.getGroups(realmName));
+
         // then create resources
         console.log("Creating resources");
-
         _.forEach(resources, (resName) => {
             wait(helper.createResource(realmName, clientUID, {
                 name: resName,
@@ -106,9 +113,21 @@ describe.only("Keycloak permissions scenario 2", function () {
                 uri: resName,
             }));
         });
-        //
-        // // then create policies
-        // console.log("Creating js policy");
+
+        // then create policies
+        console.log("Creating group policies");
+        _.forEach(groupsRepr, (gr) => {
+            helper.createGroupBasedPolicy(realmName, clientUID,
+                `Belong to ${gr.name}`, [{ id: gr.id, path: gr.path }]);
+        });
+
+        // then create permissions
+        // console.log("Creating group policies");
+        // _.forEach(groupsRepr, (gr) => {
+        //     helper.createGroupBasedPolicy(realmName, clientUID,
+        //         `Belong to ${gr.name}`, [gr]);
+        // });
+
         //
         // const jsPolicyRepr: any = wait(helper.createJsPolicy(
         //     realmName,
@@ -116,7 +135,7 @@ describe.only("Keycloak permissions scenario 2", function () {
         //     jsPolicyName,
         //     jsPolicy,
         // ));
-        //
+
         // // then create permissions
         // console.log("Creating permission");
         //
