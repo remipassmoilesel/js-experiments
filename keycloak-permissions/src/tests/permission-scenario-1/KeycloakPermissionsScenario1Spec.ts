@@ -10,7 +10,7 @@ import { IUserRepresentation } from "../../lib/representations/IUserRepresentati
 
 const assert = chai.assert;
 
-describe.only("Keycloak permissions scenario 1", function () {
+describe("Keycloak permissions scenario 1", function () {
 
     this.timeout(10000);
 
