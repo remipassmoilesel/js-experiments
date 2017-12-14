@@ -17,6 +17,6 @@ const realmName = `${increment}`;
 const clientName = `libraries`;
 
 const kf = new KeycloakFlooder(authSettings);
-kf.flood(realmName, clientName, 100, 200);
+kf.flood(realmName, clientName, 10, 20);
 
 console.log(`Finishing: ${new Date()}`);

@@ -11,7 +11,7 @@ import { IUserRepresentation } from "../../lib/representations/IUserRepresentati
 
 const assert = chai.assert;
 
-describe.only("Keycloak permissions scenario 2", function () {
+describe("Keycloak permissions scenario 2", function () {
 
     this.timeout(10000);
 
@@ -26,7 +26,7 @@ describe.only("Keycloak permissions scenario 2", function () {
 
     const helper = new KeycloakHelper(authSettings);
 
-    const realmName = new Date().toISOString().replace(/[-:.]+/ig, "");
+    const realmName = `gbac-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
     const clientName = `000-library-client-a`;
     const libraryResourceType = "library";
 
@@ -123,6 +123,8 @@ describe.only("Keycloak permissions scenario 2", function () {
 
         // then create group mapper
         console.log("Creating group mapper");
+        // GROUP MAPPER is mandatory in order to evaluate groups membership
+        // claim name value should be the same as groupClaimName from group policy
         wait(helper.createGroupMapper(realmName, clientUID, "$groups"));
 
         // then create resources

@@ -1,60 +1,63 @@
-import * as chai from 'chai';
-import { run, wait } from 'f-promise';
-import * as fs from 'fs-extra';
-import * as _ from 'lodash';
-import 'mocha';
-import { IAuthSettings } from '../../lib/AuthSettings';
-import { KeycloakHelper } from '../../lib/KeyloakHelper';
-import { IResourceRepresentation } from '../../lib/representations/IResourceRepresentation';
-import { IUserRepresentation } from '../../lib/representations/IUserRepresentation';
+import * as chai from "chai";
+import { run, wait } from "f-promise";
+import * as fs from "fs-extra";
+import * as _ from "lodash";
+import "mocha";
+import { IAuthSettings } from "../../lib/AuthSettings";
+import { KeycloakHelper } from "../../lib/KeyloakHelper";
+import { IResourceRepresentation } from "../../lib/representations/IResourceRepresentation";
+import { IUserRepresentation } from "../../lib/representations/IUserRepresentation";
 
 const assert = chai.assert;
 
-describe('Keycloak permissions scenario 1', function () {
+describe.only("Keycloak permissions scenario 1", function () {
 
     this.timeout(10000);
 
-    const keycloakBaseUrl = 'http://172.17.0.3:8080/auth';
+    const keycloakBaseUrl = "http://172.17.0.3:8080/auth";
     const authSettings: IAuthSettings = {
         baseUrl: keycloakBaseUrl,
-        username: 'keycloak',
-        password: 'keycloak',
-        grant_type: 'password',
-        client_id: 'admin-cli',
+        username: "keycloak",
+        password: "keycloak",
+        grant_type: "password",
+        client_id: "admin-cli",
     };
 
     const helper = new KeycloakHelper(authSettings);
 
-    const realmName = new Date().toISOString().replace(/[-:.]+/ig, '');
+    const realmName = `policejs-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
     const clientName = `000-library-client-a`;
 
-    const jsPolicyName = 'library-policy';
-    const libraryResourceType = 'library';
+    const jsPolicyName = "library-policy";
+    const libraryResourceType = "library";
 
-    const libraryA = 'library-A';
-    const libraryB = 'library-B';
+    const libraryA = "library-A";
+    const libraryB = "library-B";
     const resources = [libraryA, libraryB];
 
-    const adminRole = "admin";
-    const userRole = "user";
-    const roles = [adminRole, userRole];
+    const adminRoleLibA = "admin_library-A";
+    const adminRoleLibB = "admin_library-B";
+    const userRoleLibA = "user_library-A";
+    const userRoleLibB = "user_library-B";
 
-    const userA = 'userA';
-    const userB = 'userB';
+    const roles = [adminRoleLibA, userRoleLibA, adminRoleLibB, userRoleLibB];
+
+    const userA = "user-a";
+    const userB = "user-b";
 
     const users = [
         {
             name: userA,
-            roles: ['admin_library-A', 'user_library-A', 'user_library-B'],
+            roles: [adminRoleLibA, userRoleLibA, userRoleLibB],
         },
         {
             name: userB,
-            roles: ['admin_library-B', 'user_library-B', 'user_library-A'],
+            roles: [adminRoleLibB, userRoleLibB, userRoleLibA],
         },
     ];
 
-    const adminScopeName = 'ADMINISTRATE';
-    const useScopeName = 'USE';
+    const adminScopeName = "ADMINISTRATE";
+    const useScopeName = "USE";
 
     const getResourceUri = (resourceName) => {
         return `${resourceName}`;
@@ -65,33 +68,33 @@ describe('Keycloak permissions scenario 1', function () {
     const prepareRealm = () => {
 
         // code is not required in order to avoid errors for undefined variables
-        let jsPolicyCodePartial = fs.readFileSync('src/tests/javascript-policy.js').toString();
-        let jsPolicyVariables: string = fs.readFileSync('src/tests/javascript-policy-variables.js').toString();
+        let jsPolicyCodePartial = fs.readFileSync("src/tests/permission-scenario-1/javascript-policy.js").toString();
+        let jsPolicyVariables = fs.readFileSync("src/tests/permission-scenario-1/javascript-policy-variables.js").toString();
         let jsPolicy: string = jsPolicyVariables + jsPolicyCodePartial;
 
         // create realm
-        console.log('Creating realm');
+        console.log("Creating realm");
         wait(helper.createRealm(realmName));
 
         // then create client
-        console.log('Creating client');
+        console.log("Creating client");
         const client = wait(helper.createClient(realmName, {
             clientId: clientName,
             name: clientName,
             description: `Description of ${clientName}`,
-            redirectUris: ['http://localhost'],
+            redirectUris: ["http://localhost"],
             serviceAccountsEnabled: true,
             authorizationServicesEnabled: true,
         }));
         clientUID = client.id;
 
         // then create scopes
-        console.log('Creating scopes');
+        console.log("Creating scopes");
         const adminScope = wait(helper.createScope(realmName, clientUID, adminScopeName));
         const useScope = wait(helper.createScope(realmName, clientUID, useScopeName));
 
         // then create resources
-        console.log('Creating resources');
+        console.log("Creating resources");
 
         _.forEach(resources, (resName) => {
             wait(helper.createResource(realmName, clientUID, {
@@ -103,17 +106,17 @@ describe('Keycloak permissions scenario 1', function () {
         });
 
         // then create roles
-        console.log('Creating roles');
+        console.log("Creating roles");
 
         _.forEach(roles, (roleName: string) => {
             wait(helper.createClientRole(realmName, clientUID, {
                 name: roleName,
-                scopeParamRequired: '',
+                scopeParamRequired: "",
             }));
         });
 
         // then create policies
-        console.log('Creating js policy');
+        console.log("Creating js policy");
 
         const jsPolicyRepr: any = wait(helper.createJsPolicy(
             realmName,
@@ -123,34 +126,34 @@ describe('Keycloak permissions scenario 1', function () {
         ));
 
         // then create permissions
-        console.log('Creating permission');
+        console.log("Creating permission");
 
         wait(helper.createPermission(
             realmName,
             clientUID,
             {
-                name: 'Admins can administrate',
-                type: 'resource',
-                logic: 'POSITIVE',
-                decisionStrategy: 'AFFIRMATIVE',
+                name: "Admins can administrate",
+                type: "resource",
+                logic: "POSITIVE",
+                decisionStrategy: "AFFIRMATIVE",
                 policies: [jsPolicyRepr.id],
                 resourceType: libraryResourceType,
             }));
 
         // then create users
-        console.log('Creating users');
+        console.log("Creating users");
 
         _.forEach(users, (user) => {
             wait(helper.createUser(realmName, {
                 enabled: true,
                 attributes: {},
                 username: user.name,
-                emailVerified: '',
+                emailVerified: "",
             }));
         });
 
         // then map roles
-        console.log('Mapping client roles');
+        console.log("Mapping client roles");
 
         _.forEach(users, (user) => {
             const userInfos = wait(helper.getUser(realmName, user.name));
@@ -171,14 +174,14 @@ describe('Keycloak permissions scenario 1', function () {
             try {
                 prepareRealm();
             } catch (e) {
-                console.log('Error while preparing realm: ' + e);
+                console.log("Error while preparing realm: " + e);
             }
 
         });
 
     });
 
-    const evaluate = (resourceName: string, userName: string, scopeNames: string[], status: 'PERMIT' | 'DENY') => {
+    const evaluate = (resourceName: string, userName: string, scopeNames: string[], status: "PERMIT" | "DENY") => {
 
         return run(() => {
 
@@ -198,29 +201,29 @@ describe('Keycloak permissions scenario 1', function () {
 
     };
 
-    it('User A should be authorized to administrate library A', () => {
-        return evaluate(libraryA, userA, [adminScopeName], 'PERMIT');
+    it("User A should be authorized to administrate library A", () => {
+        return evaluate(libraryA, userA, [adminScopeName], "PERMIT");
     });
 
-    it('User A should be authorized to use library A', () => {
-        return evaluate(libraryA, userA, [useScopeName], 'PERMIT');
+    it("User A should be authorized to use library A", () => {
+        return evaluate(libraryA, userA, [useScopeName], "PERMIT");
     });
 
-    it('User A should not be authorized to administrate library B', () => {
-        return evaluate(libraryB, userA, [adminScopeName], 'DENY');
+    it("User A should not be authorized to administrate library B", () => {
+        return evaluate(libraryB, userA, [adminScopeName], "DENY");
     });
 
 
-    it('User B should be authorized to administrate library B', () => {
-        return evaluate(libraryB, userB, [adminScopeName], 'PERMIT');
+    it("User B should be authorized to administrate library B", () => {
+        return evaluate(libraryB, userB, [adminScopeName], "PERMIT");
     });
 
-    it('User B should be authorized to use library B', () => {
-        return evaluate(libraryB, userB, [useScopeName], 'PERMIT');
+    it("User B should be authorized to use library B", () => {
+        return evaluate(libraryB, userB, [useScopeName], "PERMIT");
     });
 
-    it('User B should not be authorized to administrate library A', () => {
-        return evaluate(libraryA, userB, [adminScopeName], 'DENY');
+    it("User B should not be authorized to administrate library A", () => {
+        return evaluate(libraryA, userB, [adminScopeName], "DENY");
     });
 
 });
