@@ -470,7 +470,7 @@ export class KeycloakHelper {
         });
     }
 
-    public createGroupBasedPolicy(realmName: string, clientUID: string, name: string,
+    public createGroupBasedPolicy(realmName: string, clientUID: string, name: string, groupClaimName: string,
                                   groupsRepr: IGroupRepresentation[]) {
 
         return this.getAuth().then((auth) => {
@@ -479,7 +479,7 @@ export class KeycloakHelper {
                 type: "group",
                 logic: "POSITIVE",
                 name,
-                groupsClaim: "$groups",
+                groupsClaim: groupClaimName,
                 groups: groupsRepr,
             };
 
@@ -549,6 +549,39 @@ export class KeycloakHelper {
 
     }
 
+    public createGroupMapper(realmName: string, clientUID: string, claimName: string) {
+
+        return this.getAuth().then((auth) => {
+
+
+            const payload = {
+                protocol: "openid-connect",
+                config: {
+                    "full.path": "true",
+                    "id.token.claim": "true",
+                    "access.token.claim": "true",
+                    "userinfo.token.claim": "true",
+                    "claim.name": claimName,
+                },
+                name: "group mapping",
+                consentRequired: "",
+                protocolMapper: "oidc-group-membership-mapper",
+            };
+
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin`
+                + `/realms/${realmName}/clients/${clientUID}/protocol-mappers/models`,
+                auth,
+                body: payload,
+                json: true,
+            };
+
+            return request(options);
+        });
+
+    }
+
     private getToken() {
 
         const options = {
@@ -570,5 +603,6 @@ export class KeycloakHelper {
             };
         });
     }
+
 
 }

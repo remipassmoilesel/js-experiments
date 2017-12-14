@@ -67,22 +67,22 @@ describe.only("Keycloak permissions scenario 2", function () {
         {
             resource: libraryA,
             groupName: groupLibAUser,
-            scopes: ["READ"],
+            scopes: [readScopeName],
         },
         {
             resource: libraryA,
             groupName: groupLibAAdmin,
-            scopes: scopeNames,
+            scopes: [editScopeName, deleteScopeName, updateScopeName],
         },
         {
             resource: libraryB,
             groupName: groupLibBUser,
-            scopes: ["READ"],
+            scopes: [readScopeName],
         },
         {
             resource: libraryB,
             groupName: groupLibBAdmin,
-            scopes: scopeNames,
+            scopes: [editScopeName, deleteScopeName, updateScopeName],
         },
     ];
 
@@ -121,6 +121,10 @@ describe.only("Keycloak permissions scenario 2", function () {
         });
         const groupsRepr: IGroupRepresentation[] = wait(helper.getGroups(realmName));
 
+        // then create group mapper
+        console.log("Creating group mapper");
+        wait(helper.createGroupMapper(realmName, clientUID, "$groups"));
+
         // then create resources
         console.log("Creating resources");
         _.forEach(resourceNames, (resName) => {
@@ -143,6 +147,7 @@ describe.only("Keycloak permissions scenario 2", function () {
                 realmName,
                 clientUID,
                 `Belong to group ${gr.name}`,
+                "$groups",
                 [{ id: gr.id, path: gr.path }]));
         });
         const policiesRepr: IResourcePermissionRepresentation[] = wait(helper.getPolicies(
@@ -234,7 +239,7 @@ describe.only("Keycloak permissions scenario 2", function () {
 
             assert.isTrue(evaluations.results.length > 0);
             _.forEach(evaluations.results, (rslt) => {
-                assert.equal(rslt.status, status);
+                assert.equal(rslt.status, status, JSON.stringify(rslt, null, 2));
             });
 
         });
