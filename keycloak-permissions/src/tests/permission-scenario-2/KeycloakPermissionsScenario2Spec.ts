@@ -26,7 +26,7 @@ describe("Keycloak permissions scenario 2", function () {
 
     const helper = new KeycloakHelper(authSettings);
 
-    const realmName = `gbac-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
+    const realmName = `Scenario-2-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
     const clientName = `000-library-client-a`;
     const libraryResourceType = "library";
 

@@ -25,7 +25,7 @@ describe("Keycloak permissions scenario 1", function () {
 
     const helper = new KeycloakHelper(authSettings);
 
-    const realmName = `policejs-1-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
+    const realmName = `Scenario-1-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
     const clientName = `000-library-client-a`;
 
     const jsPolicyName = "library-policy";
