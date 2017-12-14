@@ -5,6 +5,7 @@ import "mocha";
 import { IAuthSettings } from "../../lib/AuthSettings";
 import { KeycloakHelper } from "../../lib/KeyloakHelper";
 import { IGroupRepresentation } from "../../lib/representations/IGroupRepresentation";
+import { IResourcePermissionRepresentation } from "../../lib/representations/IResourcePermissionRepresentation";
 import { IResourceRepresentation } from "../../lib/representations/IResourceRepresentation";
 import { IUserRepresentation } from "../../lib/representations/IUserRepresentation";
 
@@ -31,7 +32,7 @@ describe.only("Keycloak permissions scenario 2", function () {
 
     const libraryA = "library-A";
     const libraryB = "library-B";
-    const resources = [libraryA, libraryB];
+    const resourceNames = [libraryA, libraryB];
 
     const userA = "userA";
     const userB = "userB";
@@ -105,7 +106,7 @@ describe.only("Keycloak permissions scenario 2", function () {
 
         // then create resources
         console.log("Creating resources");
-        _.forEach(resources, (resName) => {
+        _.forEach(resourceNames, (resName) => {
             wait(helper.createResource(realmName, clientUID, {
                 name: resName,
                 scopes: scopesRepr,
@@ -113,28 +114,43 @@ describe.only("Keycloak permissions scenario 2", function () {
                 uri: resName,
             }));
         });
+        const resourcesRepr: IResourceRepresentation[] = [];
+        _.forEach(resourceNames, (name) => {
+            resourcesRepr.push(wait(helper.getResource(realmName, clientUID, name)));
+        });
 
         // then create policies
         console.log("Creating group policies");
         _.forEach(groupsRepr, (gr) => {
-            helper.createGroupBasedPolicy(realmName, clientUID,
-                `Belong to ${gr.name}`, [{ id: gr.id, path: gr.path }]);
+            wait(helper.createGroupBasedPolicy(
+                realmName,
+                clientUID,
+                `Belong to ${gr.name}`,
+                [{ id: gr.id, path: gr.path }]));
         });
+        const policiesRepr: IResourcePermissionRepresentation[] = wait(helper.getPolicies(
+            realmName,
+            clientUID,
+            20,
+        ));
 
         // then create permissions
-        // console.log("Creating group policies");
-        // _.forEach(groupsRepr, (gr) => {
-        //     helper.createGroupBasedPolicy(realmName, clientUID,
-        //         `Belong to ${gr.name}`, [gr]);
-        // });
+        _.forEach(resourcesRepr, (res: IResourceRepresentation) => {
+            _.forEach(scopesRepr, (scope) => {
 
-        //
-        // const jsPolicyRepr: any = wait(helper.createJsPolicy(
-        //     realmName,
-        //     clientUID,
-        //     jsPolicyName,
-        //     jsPolicy,
-        // ));
+                const policy = _.filter(policiesRepr, (pol) => {
+                    return pol.name.indexOf(res.name) !== -1;
+                })[0];
+
+                helper.createScopeBasedPermission(realmName,
+                    clientUID,
+                    `Can ${scope.name} on ${res.name}`,
+                    [(res._id as any)],
+                    [scope.id],
+                    [policy.id]);
+            });
+        });
+
 
         // // then create permissions
         // console.log("Creating permission");

@@ -201,6 +201,22 @@ export class KeycloakHelper {
 
     }
 
+    public getPolicies(realmName: string, clientUID: string, limit: number):
+            Promise<IResourcePermissionRepresentation[]> {
+
+        return this.getAuth().then((auth) => {
+            const options = {
+                method: "GET",
+                uri: `${this.authSettings.baseUrl}/admin/realms/${realmName}/clients/${clientUID}`
+                + `/authz/resource-server/policy?first=0&max=20&permission=false`,
+                auth,
+                json: true,
+            };
+            return request(options);
+        });
+
+    }
+
     public getPolicy(realmName: string, clientUID: string,
                      policyName: string): Promise<IResourcePermissionRepresentation> {
 
@@ -459,23 +475,56 @@ export class KeycloakHelper {
                                   groupsRepr: IGroupRepresentation[]) {
 
         return this.getAuth().then((auth) => {
-            const options = {
-                method: "POST",
-                uri: `${this.authSettings.baseUrl}/admin`
-                + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/group`,
-                auth,
-                body: {
+
+            const payload = {
                     type: "group",
                     logic: "POSITIVE",
                     name,
                     groupsClaim: "groups",
                     groups: groupsRepr,
-                },
+                };
+
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin`
+                + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/policy/group`,
+                auth,
+                body: payload,
                 json: true,
             };
 
             return request(options);
         });
+    }
+
+    public createScopeBasedPermission(realmName: string, clientUID: string, name: string, resourceUIDs: string[],
+                                      scopesUIDs: string[], policiesUIDs: string[]) {
+
+        return this.getAuth().then((auth) => {
+
+            const payload = {
+                type: "scope",
+                logic: "POSITIVE",
+                decisionStrategy: "UNANIMOUS",
+                name,
+                resources: resourceUIDs,
+                scopes: scopesUIDs,
+                policies: policiesUIDs,
+            };
+
+            const options = {
+                method: "POST",
+                uri: `${this.authSettings.baseUrl}/admin`
+                + `/realms/${realmName}/clients/${clientUID}/authz/resource-server/permission/scope`,
+                auth,
+                body: payload,
+                json: true,
+            };
+
+            return request(options);
+        });
+
+
     }
 
     private getToken() {
