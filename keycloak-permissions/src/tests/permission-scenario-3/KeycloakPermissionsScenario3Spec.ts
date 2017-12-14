@@ -11,6 +11,9 @@ import { IUserRepresentation } from "../../lib/representations/IUserRepresentati
 
 const assert = chai.assert;
 
+/**
+ * NOT FUNCTIONAL, WIP
+ */
 describe("Keycloak permissions scenario 3", function () {
 
     this.timeout(10000);
