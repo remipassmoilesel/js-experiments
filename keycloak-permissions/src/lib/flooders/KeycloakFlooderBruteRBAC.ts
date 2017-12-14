@@ -1,7 +1,7 @@
 import { run, wait } from "f-promise";
 import * as _ from "lodash";
-import { IAuthSettings } from "./AuthSettings";
-import { KeycloakHelper } from "./KeyloakHelper";
+import { IAuthSettings } from "../AuthSettings";
+import { KeycloakHelper } from "../KeyloakHelper";
 
 export interface IResourceToCreate {
     name: string;

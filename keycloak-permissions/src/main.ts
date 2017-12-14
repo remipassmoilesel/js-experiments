@@ -1,5 +1,5 @@
 import { IAuthSettings } from "./lib/AuthSettings";
-import { KeycloakFlooder } from "./lib/KeycloakFlooderBruteRBAC";
+import { KeycloakFlooder } from "./lib/flooders/KeycloakFlooderBruteRBAC";
 
 const keycloakBaseUrl = "http://172.17.0.3:8080/auth";
 const authSettings: IAuthSettings = {
