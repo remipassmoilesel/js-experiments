@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import { create } from "domain";
 import { run, wait } from "f-promise";
 import * as fs from "fs-extra";
 import * as _ from "lodash";
@@ -10,7 +11,7 @@ import { IUserRepresentation } from "../../lib/representations/IUserRepresentati
 
 const assert = chai.assert;
 
-describe("Keycloak permissions scenario 1", function () {
+describe("Keycloak permissions scenario 3", function () {
 
     this.timeout(10000);
 
@@ -25,7 +26,7 @@ describe("Keycloak permissions scenario 1", function () {
 
     const helper = new KeycloakHelper(authSettings);
 
-    const realmName = `policejs-1-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
+    const realmName = `policejs-3-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
     const clientName = `000-library-client-a`;
 
     const jsPolicyName = "library-policy";
@@ -35,41 +36,44 @@ describe("Keycloak permissions scenario 1", function () {
     const libraryB = "library-B";
     const resources = [libraryA, libraryB];
 
-    const adminRoleLibA = "admin_library-A";
-    const adminRoleLibB = "admin_library-B";
-    const userRoleLibA = "user_library-A";
-    const userRoleLibB = "user_library-B";
-
-    const roles = [adminRoleLibA, userRoleLibA, adminRoleLibB, userRoleLibB];
-
     const userA = "user-a";
     const userB = "user-b";
+
+    const createScope = "CREATE";
+    const readScope = "READ";
+    const updateScope = "UPDATE";
+    const deleteScope = "DELETE";
+
+    const scopeNames = [createScope, readScope, updateScope, deleteScope];
 
     const users = [
         {
             name: userA,
-            roles: [adminRoleLibA, userRoleLibA, userRoleLibB],
+            attributes: {
+                scopeMap: {
+                    [libraryA]: [createScope, readScope, updateScope, deleteScope],
+                    [libraryB]: [readScope],
+                },
+            },
         },
         {
             name: userB,
-            roles: [adminRoleLibB, userRoleLibB, userRoleLibA],
+            attributes: {
+                scopeMap: {
+                    [libraryA]: [readScope],
+                    [libraryB]: [createScope, readScope, updateScope, deleteScope],
+                },
+            },
         },
     ];
-
-    const adminScopeName = "ADMINISTRATE";
-    const useScopeName = "USE";
-
-    const getResourceUri = (resourceName) => {
-        return `${resourceName}`;
-    };
 
     let clientUID;
 
     const prepareRealm = () => {
 
         // code is not required in order to avoid errors for undefined variables
-        let jsPolicyCodePartial = fs.readFileSync("src/tests/permission-scenario-1/javascript-policy.js").toString();
-        let jsPolicyVariables = fs.readFileSync("src/tests/permission-scenario-1/javascript-policy-variables.js").toString();
+        let jsPolicyCodePartial = fs.readFileSync("src/tests/permission-scenario-3/javascript-policy.js").toString();
+        let jsPolicyVariables = fs.readFileSync("src/tests/permission-scenario-3/javascript-policy-variables.js").toString();
         let jsPolicy: string = jsPolicyVariables + jsPolicyCodePartial;
 
         // create realm
@@ -90,8 +94,10 @@ describe("Keycloak permissions scenario 1", function () {
 
         // then create scopes
         console.log("Creating scopes");
-        const adminScope = wait(helper.createScope(realmName, clientUID, adminScopeName));
-        const useScope = wait(helper.createScope(realmName, clientUID, useScopeName));
+        const scopesRepr = [];
+        _.forEach(scopeNames, (scopeName) => {
+            scopesRepr.push(wait(helper.createScope(realmName, clientUID, scopeName)));
+        });
 
         // then create resources
         console.log("Creating resources");
@@ -99,19 +105,9 @@ describe("Keycloak permissions scenario 1", function () {
         _.forEach(resources, (resName) => {
             wait(helper.createResource(realmName, clientUID, {
                 name: resName,
-                scopes: [adminScope, useScope],
+                scopes: scopesRepr,
                 type: libraryResourceType,
-                uri: getResourceUri(resName),
-            }));
-        });
-
-        // then create roles
-        console.log("Creating roles");
-
-        _.forEach(roles, (roleName: string) => {
-            wait(helper.createClientRole(realmName, clientUID, {
-                name: roleName,
-                scopeParamRequired: "",
+                uri: resName,
             }));
         });
 
@@ -132,7 +128,7 @@ describe("Keycloak permissions scenario 1", function () {
             realmName,
             clientUID,
             {
-                name: "Admins can administrate",
+                name: "JS Permission",
                 type: "resource",
                 logic: "POSITIVE",
                 decisionStrategy: "AFFIRMATIVE",
@@ -146,25 +142,10 @@ describe("Keycloak permissions scenario 1", function () {
         _.forEach(users, (user) => {
             wait(helper.createUser(realmName, {
                 enabled: true,
-                attributes: {},
+                attributes: user.attributes,
                 username: user.name,
                 emailVerified: "",
             }));
-        });
-
-        // then map roles
-        console.log("Mapping client roles");
-
-        _.forEach(users, (user) => {
-            const userInfos = wait(helper.getUser(realmName, user.name));
-            _.forEach(user.roles, (role) => {
-                wait(helper.mapClientRoleToUser(
-                    realmName,
-                    clientUID,
-                    (userInfos.id as any),
-                    role,
-                ));
-            });
         });
 
     };
@@ -176,7 +157,6 @@ describe("Keycloak permissions scenario 1", function () {
             } catch (e) {
                 console.log("Error while preparing realm: " + e);
             }
-
         });
 
     });
@@ -202,28 +182,28 @@ describe("Keycloak permissions scenario 1", function () {
     };
 
     it("User A should be authorized to administrate library A", () => {
-        return evaluate(libraryA, userA, [adminScopeName], "PERMIT");
+        return evaluate(libraryA, userA, [createScope], "PERMIT");
     });
 
     it("User A should be authorized to use library A", () => {
-        return evaluate(libraryA, userA, [useScopeName], "PERMIT");
+        return evaluate(libraryA, userA, [readScope], "PERMIT");
     });
 
     it("User A should not be authorized to administrate library B", () => {
-        return evaluate(libraryB, userA, [adminScopeName], "DENY");
+        return evaluate(libraryB, userA, [createScope], "DENY");
     });
 
 
     it("User B should be authorized to administrate library B", () => {
-        return evaluate(libraryB, userB, [adminScopeName], "PERMIT");
+        return evaluate(libraryB, userB, [createScope], "PERMIT");
     });
 
     it("User B should be authorized to use library B", () => {
-        return evaluate(libraryB, userB, [useScopeName], "PERMIT");
+        return evaluate(libraryB, userB, [readScope], "PERMIT");
     });
 
     it("User B should not be authorized to administrate library A", () => {
-        return evaluate(libraryA, userB, [adminScopeName], "DENY");
+        return evaluate(libraryA, userB, [createScope], "DENY");
     });
 
 });

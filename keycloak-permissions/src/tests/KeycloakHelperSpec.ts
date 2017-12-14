@@ -22,7 +22,7 @@ describe("Keycloak helper test", function () {
 
     const helper = new KeycloakHelper(authSettings);
 
-    const increment = new Date().toISOString().replace(/[-:.]+/ig, "");
+    const increment = `helper-spec-${new Date().toISOString().replace(/[-:.]+/ig, "")}`;
     const realmName = `${increment}`;
     const clientName = `000-library-client-a`;
 
