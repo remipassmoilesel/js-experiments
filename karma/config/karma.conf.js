@@ -5,15 +5,15 @@ module.exports = (config) => {
         basePath: '..',
         frameworks: ['mocha', 'chai', 'sinon'],
         files: [
-            'karma.test-config.js',
-            '../src/test/**/*.tsx',
-            '../src/tests/**/*.ts',
+            'config/karma.test-config.js',
+            './src/test/**/*.tsx',
+            './src/test/**/*.ts',
         ],
         exclude: [
         ],
         preprocessors: {
-            '../src/**/*.tsx': ['webpack', 'sourcemap'],
-            '../src/**/*.ts': ['webpack', 'sourcemap']
+            './src/**/*.tsx': ['webpack', 'sourcemap'],
+            './src/**/*.ts': ['webpack', 'sourcemap']
         },
         webpack: webpackConfig,
         reporters: ['progress'],
@@ -21,7 +21,7 @@ module.exports = (config) => {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['phantomjs'],
+        browsers: ['jsdom'],
         concurrency: Infinity
     })
 };

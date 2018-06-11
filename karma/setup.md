@@ -96,10 +96,13 @@ Installer les dépendances:
     $ npm install --save-dev karma karma-chai karma-webpack karma-mocha  karma-sinon karma-webpack karma-sourcemap-loader\
             karma-sourcemap-writer chai mocha webpack karma-spec-reporter
         
-Pour le lanceur: 
+Pour lancer les tests avec Chrome: 
 
-    $ npm install --save-dev karma-phantomjs-launcher 
-    $ npm install --save-dev karma-chrome-launcher 
+    $ npm install --save-dev karma-chrome-launcher
+    
+Avec JSDOM:    
+     
+    $ npm install --save-dev jdsom karma-jsdom-launcher
         
 ## Injection dans l'objet window ou document
 
