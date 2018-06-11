@@ -93,8 +93,20 @@ Créer une configuration:
 
 Installer les dépendances:
 
-    $ npm install --save-dev karma karma-chai karma-chrome-launcher karma-webpack karma-mocha \
-        karma-sinon karma-webpack karma-sourcemap-loader karma-sourcemap-writer chai mocha webpack \
-        karma-spec-reporter
+    $ npm install --save-dev karma karma-chai karma-webpack karma-mocha  karma-sinon karma-webpack karma-sourcemap-loader\
+            karma-sourcemap-writer chai mocha webpack karma-spec-reporter
         
+Pour le lanceur: 
+
+    $ npm install --save-dev karma-phantomjs-launcher 
+    $ npm install --save-dev karma-chrome-launcher 
         
+## Injection dans l'objet window ou document
+
+Créer un script karma.setup.js:
+
+    window.namespaces = {
+        configVar: "ConfigVal",
+    }        
+    
+Puis l'inclure au début de la liste de patterns de fichiers de test    
